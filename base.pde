@@ -141,7 +141,9 @@ void loop() {
       if (param == 4 | 0x80) state= STATE_NORMAL;
       break;
   }
-
+  if  (getKey() == 4) state= STATE_SECONDS;
+  else state= STATE_NORMAL;
+  
   switch(state)
   {
     case STATE_NORMAL:
