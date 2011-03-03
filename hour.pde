@@ -23,3 +23,18 @@ void hourDisplay(void)
 {
   buffersSetValues(hourHH,hourMM);
 }
+
+
+void hourDisplaySeconds(void)
+{
+  buffersSetValues(hourMM,hourSS);
+}
+
+
+/*
+void hourSetup()
+{
+  //MsTimer2::set(1000, hourPeriodic);
+}
+*/
+

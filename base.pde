@@ -11,13 +11,8 @@
 //#include <Wire.h>
 //#include <RTClib.h>
 
- 
-/*
-void hourSetup()
-{
-  //MsTimer2::set(1000, hourPeriodic);
-}
-*/
+#include "event.h"
+#include "hour.h"
 
 /***********************************************************************/
 
@@ -61,6 +56,12 @@ void setup() {
   
   
 }
+enum {
+  STATE_NORMAL,
+  STATE_SECONDS
+};
+
+unsigned char state= STATE_NORMAL;
 
 //#define  KEY_PRERIOD_MS  500
 //unsigned char keyState= 0;
@@ -117,7 +118,40 @@ void loop() {
 /*  hourMM=0;
   hourSS= keyLoop();*/
 //  keyState= hourSS+1;
-  hourDisplay();
+  unsigned char event, param;
+  
+  event= event_getEvent(0, &param);
+  switch (event)
+  {
+    case EVENT_KEY:
+      if (param == 3)
+      {
+        hourHH ++;
+        if (hourHH>23) hourHH=0;
+      }
+      
+      if (param == 5)
+      {
+        hourMM ++;
+        if (hourMM>59) hourMM=0;
+        hourSS= 0;
+      }
+
+      if (param == 4) state= STATE_SECONDS;
+      if (param == 4 | 0x80) state= STATE_NORMAL;
+      break;
+  }
+
+  switch(state)
+  {
+    case STATE_NORMAL:
+      hourDisplay();
+      break;
+      
+    case STATE_SECONDS:
+      hourDisplaySeconds();
+      break;
+  }
 }
 
 

@@ -1,25 +1,11 @@
 
-/* CONSTANTES ***************************************************************/
-enum {
-	NO_EVENT,   // à ne pas modifier
-
-	// KEY
-	EVENT_KEY,	// parametre donne touche appuyée
-		
-	// LUMINO
-	EVENT_LUMINO_MESURE,
-	EVENT_LUMINO_LEDS_OK,
-	
-	NB_EVENTS   // à laisser en dernier
-};
-
-
 /* génération et traitement d'évènements
  *
  * historique
  * 20060928: ajout d'un parametre a chaque evenement
  * 20080108: desactivation gestion sleep et watchdog pour shebon
  */
+#include "event.h"
 
 #define EVENT_BUFLEN	10
 
@@ -95,4 +81,6 @@ unsigned char event_getEvent(unsigned char delay, unsigned char *param)
 
   return(localEvent);
 }
+
+
 
