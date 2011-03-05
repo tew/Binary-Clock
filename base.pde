@@ -1,64 +1,23 @@
+
+/* This project uses 2 libraries
+
+http://www.arduino.cc/playground/uploads/Main/MsTimer2.zip
+git://github.com/adafruit/RTClib.git
+
+*/
+
+
 #define BUFFERS_REFRESH_PERIOD  100
 #define HOUR_REFRESH_PERIOD  1000
 
 #define KEY_PERIODIC_MS  50
 
-// these constants won't change:
-//const int analogPin = A0;   // the pin that the potentiometer is attached to
-//const int ledCount = 10;    // the number of LEDs in the bar graph
-
 #include <MsTimer2.h>
-#include <Wire.h>
-#include <RTClib.h>
 #include "event.h"
 #include "hour.h"
 
-RTC_DS1307 RTC;
 
-void hourSetup()
-{
-  unsigned char u8_ret, u8_isRunning;
-  Wire.begin();
-  RTC.begin();
-
-  u8_isRunning= RTC.isrunning(&u8_ret);
-  Serial.print("running ret= ");
-  Serial.println(u8_ret, DEC);
-  if (! u8_isRunning) {
-    Serial.println("RTC is NOT running!");
-    // following line sets the RTC to the date & time this sketch was compiled
-    RTC.adjust(DateTime(__DATE__, __TIME__));
-//  MsTimer2::set(1000, hourPeriodic);
-  }
-  else
-  {
-    Serial.println("RTC is running!");
-    DateTime mod= DateTime(2011,2,4, 7, 5, 0);
-    RTC.adjust(mod);
-        DateTime now = RTC.now();
-    
-    Serial.print(now.year(), DEC);
-    Serial.print('/');
-    Serial.print(now.month(), DEC);
-    Serial.print('/');
-    Serial.print(now.day(), DEC);
-    Serial.print(' ');
-    Serial.print(now.hour(), DEC);
-    Serial.print(':');
-    Serial.print(now.minute(), DEC);
-    Serial.print(':');
-    Serial.print(now.second(), DEC);
-    Serial.println();
-    
-    /*Serial.print(" since midnight 1/1/1970 = ");
-    Serial.print(now.unixtime());
-    Serial.print("s = ");
-    Serial.print(now.unixtime() / 86400L);
-    Serial.println("d");*/
-  }
-}
 /***********************************************************************/
-
 void periodic(void)
 {
   static unsigned long cpt= 0;
@@ -71,6 +30,7 @@ void periodic(void)
 }
 
 
+/***********************************************************************/
 void periodicSetup()
 {
   MsTimer2::set(BUFFERS_REFRESH_PERIOD, periodic);
@@ -78,19 +38,15 @@ void periodicSetup()
 }
 
 
-
-
-
+/***********************************************************************/
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   event_init();
   buffersSetup();
   //setupDebug();
   hourSetup();
   periodicSetup();
-  
-//  hourSetup();
-  }
+}
   
   
 
@@ -199,7 +155,7 @@ void loop() {
       break;
   }
   
-if ((mil % 1000) == 0)
+/*if ((mil % 1000) == 0)
 {
   DateTime now = RTC.now();
 
@@ -212,7 +168,7 @@ if ((mil % 1000) == 0)
     Serial.print(':');
     Serial.print(hourSS, DEC);
     Serial.println();
-}
+}*/
 }
 
 
