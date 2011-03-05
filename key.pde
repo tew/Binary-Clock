@@ -54,3 +54,8 @@ void gererKey(int key)
 }
 
 
+unsigned char getKey(void)
+{
+  return(currentKey);
+}
+

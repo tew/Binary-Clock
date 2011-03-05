@@ -8,12 +8,55 @@
 //const int ledCount = 10;    // the number of LEDs in the bar graph
 
 #include <MsTimer2.h>
-//#include <Wire.h>
-//#include <RTClib.h>
-
+#include <Wire.h>
+#include <RTClib.h>
 #include "event.h"
 #include "hour.h"
 
+RTC_DS1307 RTC;
+
+void hourSetup()
+{
+  unsigned char u8_ret, u8_isRunning;
+  Wire.begin();
+  RTC.begin();
+
+  u8_isRunning= RTC.isrunning(&u8_ret);
+  Serial.print("running ret= ");
+  Serial.println(u8_ret, DEC);
+  if (! u8_isRunning) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    RTC.adjust(DateTime(__DATE__, __TIME__));
+//  MsTimer2::set(1000, hourPeriodic);
+  }
+  else
+  {
+    Serial.println("RTC is running!");
+    DateTime mod= DateTime(2011,2,4, 7, 5, 0);
+    RTC.adjust(mod);
+        DateTime now = RTC.now();
+    
+    Serial.print(now.year(), DEC);
+    Serial.print('/');
+    Serial.print(now.month(), DEC);
+    Serial.print('/');
+    Serial.print(now.day(), DEC);
+    Serial.print(' ');
+    Serial.print(now.hour(), DEC);
+    Serial.print(':');
+    Serial.print(now.minute(), DEC);
+    Serial.print(':');
+    Serial.print(now.second(), DEC);
+    Serial.println();
+    
+    /*Serial.print(" since midnight 1/1/1970 = ");
+    Serial.print(now.unixtime());
+    Serial.print("s = ");
+    Serial.print(now.unixtime() / 86400L);
+    Serial.println("d");*/
+  }
+}
 /***********************************************************************/
 
 void periodic(void)
@@ -36,26 +79,21 @@ void periodicSetup()
 
 
 
-//RTC_DS1307 RTC;
+
 
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
   event_init();
   buffersSetup();
   //setupDebug();
+  hourSetup();
   periodicSetup();
+  
 //  hourSetup();
-//  Wire.begin();
-//  RTC.begin();
-
-  /*if (! RTC.isrunning())*/ {
-    //Serial.println("RTC is NOT running!");
-    // following line sets the RTC to the date & time this sketch was compiled
-    //RTC.adjust(DateTime(__DATE__, __TIME__));
   }
   
   
-}
+
 enum {
   STATE_NORMAL,
   STATE_SECONDS
@@ -139,6 +177,12 @@ void loop() {
 
       if (param == 4) state= STATE_SECONDS;
       if (param == 4 | 0x80) state= STATE_NORMAL;
+      
+      //XXX
+      if (param == 2)
+      {
+        hourSetup();
+      }
       break;
   }
   if  (getKey() == 4) state= STATE_SECONDS;
@@ -154,6 +198,21 @@ void loop() {
       hourDisplaySeconds();
       break;
   }
+  
+if ((mil % 1000) == 0)
+{
+  DateTime now = RTC.now();
+
+  hourSS=now.second();
+  hourMM=now.minute();
+  hourHH=now.hour();
+    Serial.print(hourHH, DEC);
+    Serial.print(':');
+    Serial.print(hourMM, DEC);
+    Serial.print(':');
+    Serial.print(hourSS, DEC);
+    Serial.println();
+}
 }
 
 
