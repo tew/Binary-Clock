@@ -6,6 +6,23 @@
 RTC_DS1307 RTC;
 unsigned char hourHH=0,hourMM=0, hourSS=0;
 
+void hourRTCread(void)
+{
+  DateTime now = RTC.now();
+  
+  hourHH= now.hour();
+  hourMM= now.minute();
+  hourSS= now.second();
+}
+
+
+void hourRTCsave(void)
+{
+    DateTime mod= DateTime(2011,3,18, hourHH, hourMM, hourSS);
+    RTC.adjust(mod);
+}
+
+
 void hourPeriodic()
 {
   hourSS++;
@@ -20,6 +37,8 @@ void hourPeriodic()
       if (hourHH > 23)
       {
         hourHH= 0;
+        // on midnight, we read RTC chip to get the time
+        hourRTCread();
       }
     }
   }
@@ -60,11 +79,8 @@ void hourSetup()
     Serial.println("RTC is running!");
 //    DateTime mod= DateTime(2011,2,5, 11, 38, 15);
 //    RTC.adjust(mod);
-    DateTime now = RTC.now();
-    
-    hourHH= now.hour();
-    hourMM= now.minute();
-    hourSS= now.second();
+
+    hourRTCread();
     
 /*    Serial.print(now.year(), DEC);
     Serial.print('/');

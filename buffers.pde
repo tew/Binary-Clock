@@ -8,6 +8,7 @@
 int bufferDataPins[BUFFERS_NB_LEDS]={0,1,2,3,4,5};
 int bufferLatchEnablePins[BUFFERS_NB_BUFFERS]= {8, A3};
 int bufferOutputEnable= 9;
+int luminoPin=2;
 
 unsigned char buffersValues[BUFFERS_NB_BUFFERS]={0,0};
 
@@ -33,6 +34,18 @@ void buffersSetRaw(int noBuffer, int value)
   PORTD= value;
   digitalWrite(bufferLatchEnablePins[noBuffer], HIGH);
   digitalWrite(bufferLatchEnablePins[noBuffer], LOW);
+}
+
+void luminoPeriodic()
+{
+  int sensorValue = analogRead(luminoPin);
+  int outputValue = map(sensorValue, 0, 800, 1, 255);
+/*    Serial.print("sensor = " );                       
+  Serial.print(sensorValue);      
+  Serial.print("\t output = ");      
+  Serial.println(outputValue);   */
+
+  analogWrite(bufferOutputEnable, 255-outputValue);
 }
 
 void buffersPeriodic()

@@ -122,6 +122,7 @@ void loop() {
       {
         hourHH ++;
         if (hourHH>23) hourHH=0;
+        hourRTCsave();
       }
       
       if (param == 5)
@@ -129,6 +130,7 @@ void loop() {
         hourMM ++;
         if (hourMM>59) hourMM=0;
         hourSS= 0;
+        hourRTCsave();
       }
 
       if (param == 4) state= STATE_SECONDS;
@@ -139,6 +141,11 @@ void loop() {
       {
         hourSetup();
       }
+      break;
+      
+    // no event
+    default:
+      luminoPeriodic();
       break;
   }
   if  (getKey() == 4) state= STATE_SECONDS;
@@ -154,7 +161,6 @@ void loop() {
       hourDisplaySeconds();
       break;
   }
-  
 /*if ((mil % 1000) == 0)
 {
   DateTime now = RTC.now();
