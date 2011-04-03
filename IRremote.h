@@ -49,6 +49,7 @@ public:
   int decode(decode_results *results);
   void enableIRIn();
   void resume();
+  void irPeriodic(void);
 private:
   // These are called by decode
   int getRClevel(decode_results *results, int *offset, int *used, int t1);
@@ -92,3 +93,4 @@ public:
 #define MARK_EXCESS 100
 
 #endif
+

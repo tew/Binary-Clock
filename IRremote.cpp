@@ -220,6 +220,7 @@ IRrecv::IRrecv(int recvpin)
 
 // initialization
 void IRrecv::enableIRIn() {
+/*
   // setup pulse clock timer interrupt
   TCCR2A = 0;  // normal mode
 
@@ -236,7 +237,7 @@ void IRrecv::enableIRIn() {
   RESET_TIMER2;
 
   sei();  // enable interrupts
-
+*/
   // initialize state machine variables
   irparams.rcvstate = STATE_IDLE;
   irparams.rawlen = 0;
@@ -261,9 +262,10 @@ void IRrecv::blink13(int blinkflag)
 // First entry is the SPACE between transmissions.
 // As soon as a SPACE gets long, ready is set, state switches to IDLE, timing of SPACE continues.
 // As soon as first MARK arrives, gap width is recorded, ready is cleared, and new logging starts
-ISR(TIMER2_OVF_vect)
+//ISR(TIMER2_OVF_vect)
+void IRrecv::irPeriodic(void)
 {
-  RESET_TIMER2;
+  //RESET_TIMER2;
 
   uint8_t irdata = (uint8_t)digitalRead(irparams.recvpin);
 
@@ -599,3 +601,4 @@ long IRrecv::decodeRC6(decode_results *results) {
   results->decode_type = RC6;
   return DECODED;
 }
+
