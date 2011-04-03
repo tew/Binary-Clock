@@ -18,7 +18,7 @@ We need to modify them to make them compatible. So their are included in the cod
 
 #define KEY_PERIODIC_MS  50
 
-#include <MsTimer2.h>
+#include "MsTimer2.h"
 #include "event.h"
 #include "hour.h"
 
