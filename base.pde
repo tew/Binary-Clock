@@ -1,8 +1,14 @@
 
-/* This project uses 2 libraries
+/* This project uses 3 libraries
 
 http://www.arduino.cc/playground/uploads/Main/MsTimer2.zip
 git://github.com/adafruit/RTClib.git
+
+IR library available at
+http://www.arcfn.com/2009/08/multi-protocol-infrared-remote-library.html
+http://arcfn.com/files/IRremote.zip
+However IRlibrary and MSTimers2 both use the timer2 interrupt.
+We need to modify them to make them compatible. So their are included in the code, not as library.
 
 */
 
@@ -22,6 +28,7 @@ void periodic(void)
 {
   static unsigned long cpt= 0;
   
+  irPeriodic();
   cpt+= BUFFERS_REFRESH_PERIOD;
   buffersPeriodic();
   
@@ -40,12 +47,13 @@ void periodicSetup()
 
 /***********************************************************************/
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
   event_init();
   buffersSetup();
   //setupDebug();
   hourSetup();
   periodicSetup();
+  irSetup();
 }
   
   
@@ -112,6 +120,7 @@ void loop() {
 /*  hourMM=0;
   hourSS= keyLoop();*/
 //  keyState= hourSS+1;
+  irLoop();
   unsigned char event, param;
   
   event= event_getEvent(0, &param);
