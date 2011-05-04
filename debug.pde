@@ -1,16 +1,16 @@
 void debugDown()
 {
-  digitalWrite(A5, LOW);
+  digitalWrite(10, LOW);
 }
 
 void debugUp()
 {
-  digitalWrite(A5, HIGH);
+  digitalWrite(10, HIGH);
 }
 
 void setupDebug()
 {
-  pinMode(A5, OUTPUT);
+  pinMode(10, OUTPUT);
 }
 
 

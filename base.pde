@@ -12,11 +12,10 @@ We need to modify them to make them compatible. So their are included in the cod
 
 */
 
-
-#define BUFFERS_REFRESH_PERIOD  100
-#define HOUR_REFRESH_PERIOD  1000
-
-#define KEY_PERIODIC_MS  50
+#define PERIODIC_BASE_US  50
+#define BUFFERS_REFRESH_PERIOD_US  100000
+#define HOUR_REFRESH_PERIOD_US  1000000
+#define KEY_PERIODIC_US  50000
 
 #include "MsTimer2.h"
 #include "event.h"
@@ -27,20 +26,21 @@ We need to modify them to make them compatible. So their are included in the cod
 void periodic(void)
 {
   static unsigned long cpt= 0;
-  
+debugUp();  
   irPeriodic();
-  cpt+= BUFFERS_REFRESH_PERIOD;
+  cpt+= PERIODIC_BASE_US;
   buffersPeriodic();
   
-  if ((cpt % HOUR_REFRESH_PERIOD) == 0) hourPeriodic();
-  if ((cpt % KEY_PERIODIC_MS) == 0) keyPeriodic();
+  if ((cpt % HOUR_REFRESH_PERIOD_US) == 0) hourPeriodic();
+  if ((cpt % KEY_PERIODIC_US) == 0) keyPeriodic();
+debugDown();
 }
 
 
 /***********************************************************************/
 void periodicSetup()
 {
-  MsTimer2::set(BUFFERS_REFRESH_PERIOD, periodic);
+  MsTimer2::set(1, periodic);  // it period is 50µs, we need a call each it
   MsTimer2::start();
 }
 
@@ -54,6 +54,7 @@ void setup() {
   hourSetup();
   periodicSetup();
   irSetup();
+  setupDebug();
 }
   
   

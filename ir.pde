@@ -16,7 +16,13 @@ void irPeriodic(void)
 
 void irLoop(void)
 {
-  if (irrecv.decode(&results)) {
+  int decoded;
+  decoded= irrecv.decode(&results);
+  if (decoded) {
+    Serial.print(decoded, DEC);
+    Serial.print(": ");
+    Serial.print(results.rawlen, DEC);
+    Serial.print(" bits.");
     Serial.println(results.value, HEX);
     irrecv.resume(); // Receive the next value
   }

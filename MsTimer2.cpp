@@ -39,6 +39,7 @@ volatile unsigned int MsTimer2::tcnt2;
 void MsTimer2::set(unsigned long ms, void (*f)()) {
 	float prescaler = 0.0;
 	
+/*
 #if defined (__AVR_ATmega168__) || defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__) || defined (__AVR_ATmega328P__) || (__AVR_ATmega1280__)
 	TIMSK2 &= ~(1<<TOIE2);
 	TCCR2A &= ~((1<<WGM21) | (1<<WGM20));
@@ -97,8 +98,16 @@ void MsTimer2::set(unsigned long ms, void (*f)()) {
 		prescaler = 256.0;
 	}
 #endif
-	
-	tcnt2 = 256 - (int)((float)F_CPU * 0.001 / prescaler);
+*/
+  //Prescale /8 (16M/8 = 0.5 microseconds per tick)
+  // Therefore, the timer interval can range from 0.5 to 128 microseconds
+  // depending on the reset value (255 to 0)
+  TCCR2B &= ~(1<<CS22);  // cbi(TCCR2B,CS22);
+  TCCR2B |= (1<<CS21);  //sbi(TCCR2B,CS21);
+  TCCR2B &= ~(1<<CS20);  // cbi(TCCR2B,CS20);
+  prescaler= 8.0;
+
+	tcnt2 = 256 - (int)((float)F_CPU * 0.00005 / prescaler);
 	
 	if (ms == 0)
 		msecs = 1;
