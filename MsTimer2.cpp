@@ -30,22 +30,20 @@
 
 #include "MsTimer2.h"
 
-unsigned long MsTimer2::msecs;
+//unsigned long MsTimer2::msecs;
 void (*MsTimer2::func)();
-volatile unsigned long MsTimer2::count;
+//volatile unsigned long MsTimer2::count;
 volatile char MsTimer2::overflowing;
 volatile unsigned int MsTimer2::tcnt2;
 
 void MsTimer2::set(unsigned long ms, void (*f)()) {
 	float prescaler = 0.0;
 	
-/*
 #if defined (__AVR_ATmega168__) || defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__) || defined (__AVR_ATmega328P__) || (__AVR_ATmega1280__)
 	TIMSK2 &= ~(1<<TOIE2);
 	TCCR2A &= ~((1<<WGM21) | (1<<WGM20));
 	TCCR2B &= ~(1<<WGM22);
 	ASSR &= ~(1<<AS2);
-	TIMSK2 &= ~(1<<OCIE2A);
 	
 	if ((F_CPU >= 1000000UL) && (F_CPU <= 16000000UL)) {	// prescaler set to 64
 		TCCR2B |= (1<<CS22);
@@ -98,27 +96,35 @@ void MsTimer2::set(unsigned long ms, void (*f)()) {
 		prescaler = 256.0;
 	}
 #endif
-*/
+
+  // setup pulse clock timer interrupt
+  TCCR2A = 0;  // mode normal // CTC mode, OC0A disconnected, OC2B disconnected.
+  //TCCR2B &= ~(1<<WGM22);
+
   //Prescale /8 (16M/8 = 0.5 microseconds per tick)
   // Therefore, the timer interval can range from 0.5 to 128 microseconds
   // depending on the reset value (255 to 0)
   TCCR2B &= ~(1<<CS22);  // cbi(TCCR2B,CS22);
   TCCR2B |= (1<<CS21);  //sbi(TCCR2B,CS21);
   TCCR2B &= ~(1<<CS20);  // cbi(TCCR2B,CS20);
-  prescaler= 8.0;
-
-	tcnt2 = 256 - (int)((float)F_CPU * 0.00005 / prescaler);
-	
-	if (ms == 0)
+  //prescaler= 8.0;
+  //TCCR2B &= ~((1<<FOC2A) || (1<<FOC2B));
+  tcnt2 = 100;//256 - 1; //(int)((float)F_CPU * 0.00005 / prescaler);
+  //OCR2A= tcnt2;
+	//Serial.print("tcnt2= ");
+	//Serial.println(tcnt2, DEC);
+	/*if (ms == 0)
 		msecs = 1;
 	else
-		msecs = ms;
+		msecs = ms;*/
 		
 	func = f;
+  TIMSK2 &= ~(1<<TOIE2);
+  sei();
 }
 
 void MsTimer2::start() {
-	count = 0;
+	//count = 0;
 	overflowing = 0;
 #if defined (__AVR_ATmega168__) || defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__) || defined (__AVR_ATmega328P__) || (__AVR_ATmega1280__)
 	TCNT2 = tcnt2;
@@ -143,17 +149,23 @@ void MsTimer2::stop() {
 }
 
 void MsTimer2::_overflow() {
-	count += 1;
-	
-	if (count >= msecs && !overflowing) {
+	//count += 1;
+	//TCNT2= tcnt2;
+	if (/*count >= msecs && */!overflowing) {
 		overflowing = 1;
-		count = 0;
+		//count = 0;
 		(*func)();
 		overflowing = 0;
+                //debugDown();
 	}
+        /*else
+        {
+          //debugUp();
+        }*/
 }
 
 ISR(TIMER2_OVF_vect) {
+
 #if defined (__AVR_ATmega168__) || defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__) || defined (__AVR_ATmega328P__) || (__AVR_ATmega1280__)
 	TCNT2 = MsTimer2::tcnt2;
 #elif defined (__AVR_ATmega128__)

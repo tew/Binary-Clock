@@ -13,27 +13,49 @@ We need to modify them to make them compatible. So their are included in the cod
 */
 
 #define PERIODIC_BASE_US  50
-#define BUFFERS_REFRESH_PERIOD_US  100000
-#define HOUR_REFRESH_PERIOD_US  1000000
-#define KEY_PERIODIC_US  50000
+#define BUFFERS_REFRESH_PERIOD_MS  100UL
+#define HOUR_REFRESH_PERIOD_MS  1000UL
+#define KEY_PERIODIC_MS  50UL
 
 #include "MsTimer2.h"
 #include "event.h"
 #include "hour.h"
 
 
+unsigned long cpt_us= 0;
+unsigned long cpt_buffers=0;
+unsigned long cpt_hour=0;
+unsigned long cpt_key=0;
 /***********************************************************************/
 void periodic(void)
 {
-  static unsigned long cpt= 0;
-debugUp();  
-  irPeriodic();
-  cpt+= PERIODIC_BASE_US;
-  buffersPeriodic();
+digitalWrite(10, HIGH); //debugUp();
+  irPeriodic();  // 12,4µs
+  cpt_us+= PERIODIC_BASE_US;  // 6,8µs
   
-  if ((cpt % HOUR_REFRESH_PERIOD_US) == 0) hourPeriodic();
-  if ((cpt % KEY_PERIODIC_US) == 0) keyPeriodic();
-debugDown();
+  if (cpt_us>=1000)
+  {
+    cpt_us -= 1000;
+    cpt_buffers++;  // 6.4µs
+    if (cpt_buffers == BUFFERS_REFRESH_PERIOD_MS)  // 20µs
+    {
+      cpt_buffers= 0;
+      buffersPeriodic();
+    }
+
+    cpt_hour++;  // 6.4µs
+    if (cpt_hour == HOUR_REFRESH_PERIOD_MS) {  // 1.4µs
+      cpt_hour= 0;
+      hourPeriodic();
+    }
+
+    cpt_key++;  // 6.6µs
+    if (cpt_key == KEY_PERIODIC_MS) {
+      cpt_key= 0;
+      keyPeriodic();
+    }
+  }
+digitalWrite(10, LOW); //debugDown();
 }
 
 
