@@ -69,7 +69,7 @@ void periodicSetup()
 
 /***********************************************************************/
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   event_init();
   buffersSetup();
   //setupDebug();
@@ -175,6 +175,18 @@ void loop() {
       }
       break;
       
+    case EVENT_IR:
+      hourHH= param;
+      break;
+
+    case EVENT_IR_PLUS:
+      hourHH++;
+      break;
+      
+    case EVENT_IR_MOINS:
+      hourHH--;
+      break;
+    
     // no event
     default:
       luminoPeriodic();

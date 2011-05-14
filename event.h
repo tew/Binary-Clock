@@ -7,6 +7,9 @@ enum {
 
 	// KEY
 	EVENT_KEY,	// parametre donne touche appuyée
+	EVENT_IR,	// parametre donne touche appuyée
+	EVENT_IR_PLUS,	// parametre donne touche appuyée
+	EVENT_IR_MOINS,	// parametre donne touche appuyée
 		
 	// LUMINO
 	EVENT_LUMINO_MESURE,
@@ -14,6 +17,5 @@ enum {
 	
 	NB_EVENTS   // à laisser en dernier
 };
-
 
 #endif
