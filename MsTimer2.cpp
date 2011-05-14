@@ -107,12 +107,12 @@ void MsTimer2::set(unsigned long ms, void (*f)()) {
   TCCR2B &= ~(1<<CS22);  // cbi(TCCR2B,CS22);
   TCCR2B |= (1<<CS21);  //sbi(TCCR2B,CS21);
   TCCR2B &= ~(1<<CS20);  // cbi(TCCR2B,CS20);
-  //prescaler= 8.0;
+  prescaler= 8.0;
   //TCCR2B &= ~((1<<FOC2A) || (1<<FOC2B));
-  tcnt2 = 100;//256 - 1; //(int)((float)F_CPU * 0.00005 / prescaler);
+  tcnt2 = 261 - (int)((float)F_CPU * 0.000050 / prescaler);  // valeur ajusté à 50µs
   //OCR2A= tcnt2;
-	//Serial.print("tcnt2= ");
-	//Serial.println(tcnt2, DEC);
+//	Serial.print("tcnt2= ");
+//	Serial.println(tcnt2, DEC);
 	/*if (ms == 0)
 		msecs = 1;
 	else
