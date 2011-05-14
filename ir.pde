@@ -25,7 +25,7 @@ void irLoop(void)
     Serial.print(" bits: ");
     for(i=0;i<results.rawlen;i++)
     {
-      Serial.print(results.rawbuf[i], HEX);
+      Serial.print(results.rawbuf[i], DEC);
       Serial.print(" ");
     }
     Serial.println("");
