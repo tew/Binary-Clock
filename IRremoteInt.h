@@ -12,7 +12,12 @@
 #ifndef IRremoteint_h
 #define IRremoteint_h
 
+#ifdef TEST_IR
+#include <stdint.h>
+#else
+
 #include <WProgram.h>
+#endif  // TEST_IR
 
 #define CLKFUDGE 5      // fudge factor for clock interrupt overhead
 #define CLK 256      // max value for clock (timer 2)
@@ -76,11 +81,13 @@
 // Debugging versions are in IRremote.cpp
 #endif
 
+
 // receiver states
 #define STATE_IDLE     2
 #define STATE_MARK     3
 #define STATE_SPACE    4
 #define STATE_STOP     5
+
 
 // information for the interrupt handler
 typedef struct {
@@ -94,7 +101,11 @@ typedef struct {
 irparams_t;
 
 // Defined in IRremote.cpp
-extern volatile irparams_t irparams;
+extern
+#ifndef TEST_IR
+volatile
+#endif
+irparams_t irparams;
 
 // IR detector output is active low
 #define MARK  0
@@ -106,6 +117,7 @@ extern volatile irparams_t irparams;
 #define SONY_BITS 12
 #define MIN_RC5_SAMPLES 11
 #define MIN_RC6_SAMPLES 1
+#define MIN_GENERIC_SAMPLES 16
 
 #endif
 

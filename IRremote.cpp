@@ -12,10 +12,16 @@
 #include "IRremote.h"
 #include "IRremoteInt.h"
 
+#ifndef TEST_IR
+
 // Provides ISR
 #include <avr/interrupt.h>
+#endif  // !TEST_IR
 
-volatile irparams_t irparams;
+#ifndef TEST_IR
+volatile
+#endif
+irparams_t irparams;
 
 // These versions of MATCH, MATCH_MARK, and MATCH_SPACE are only for debugging.
 // To use them, set DEBUG in IRremoteInt.h
@@ -60,6 +66,7 @@ int MATCH_SPACE(int measured_ticks, int desired_us) {
 }
 #endif
 
+#ifndef TEST_IR
 void IRsend::sendNEC(unsigned long data, int nbits)
 {
   enableIROut(38);
@@ -212,12 +219,15 @@ void IRsend::enableIROut(int khz) {
   OCR2B = OCR2A / 3; // 33% duty cycle
 }
 
+#endif  // !TEST_IR
+
 IRrecv::IRrecv(int recvpin)
 {
   irparams.recvpin = recvpin;
   irparams.blinkflag = 0;
 }
 
+#ifndef TEST_IR
 // initialization
 void IRrecv::enableIRIn() {
 /*
@@ -330,11 +340,12 @@ void IRrecv::irPeriodic(void)
   }
 }
 
+#endif  // !TEST_IR
+
 void IRrecv::resume() {
   irparams.rcvstate = STATE_IDLE;
   irparams.rawlen = 0;
 }
-
 
 
 // Decodes the received IR message
@@ -346,12 +357,15 @@ int IRrecv::decode(decode_results *results) {
   if (irparams.rcvstate != STATE_STOP) {
     return ERR;
   }
+
+
 #ifdef DEBUG
   Serial.println("Attempting NEC decode");
 #endif
   if (decodeNEC(results)) {
     return DECODED;
   }
+/*
 #ifdef DEBUG
   Serial.println("Attempting Sony decode");
 #endif
@@ -366,8 +380,15 @@ int IRrecv::decode(decode_results *results) {
   }
 #ifdef DEBUG
   Serial.println("Attempting RC6 decode");
-#endif 
+#endif
   if (decodeRC6(results)) {
+    return DECODED;
+  }
+*/
+#ifdef DEBUG
+  Serial.println("Attempting generic decode");
+#endif 
+  if (decodeGeneric(results)) {
     return DECODED;
   }
   if (results->rawlen >= 6) {
@@ -375,6 +396,7 @@ int IRrecv::decode(decode_results *results) {
     results->decode_type = UNKNOWN;
     results->bits = 0;
     results->value = 0;
+    results->valueH= 0;
     return DECODED;
   }
   // Throw away and start over
@@ -602,3 +624,146 @@ long IRrecv::decodeRC6(decode_results *results) {
   return DECODED;
 }
 
+
+long IRrecv::decodeGeneric(decode_results *results) {
+    if (results->rawlen < MIN_GENERIC_SAMPLES) {
+        return ERR;
+    }
+    // We reuse the generic method found in UIRDIM
+    #define DIFF 4
+    int i= 0;   // first element is the second sincce the first counts high state duration
+    int8_t bTlow0=0;
+    int8_t bThigh0= 0;
+    int8_t w;
+    //uint8_t bRemDat[6];
+    uint32_t data[2];
+    int nbits=0;
+
+    results->value=0;
+    results->valueH= 0;
+    results->bits=0;
+    data[0]= 0;
+    data[1]= 0;
+    while (i<results->rawlen)
+    {
+        // on commence par un low
+        w= bTlow0-results->rawbuf[i];
+        bTlow0=results->rawbuf[i];
+        if (w<0) w=-w;
+        // decaller pour ajouter un bit de poids faible
+        data[1]<<=1;
+        if (data[0] & 0x8000000) data[1] |= 1;
+        data[0]<<=1;
+        nbits++;
+        // ajouter un 1 eventuellement
+        if (w>DIFF) data[0] |= 1;
+        
+        i++;    // data suivante
+        
+        if (i<results->rawlen)
+        {
+            // puis on re�ois un high
+            w= bThigh0-results->rawbuf[i];
+            bThigh0=results->rawbuf[i];
+            if (w<0) w=-w;
+            // decaller pour ajouter un bit de poids faible
+            data[1]<<=1;
+            if (data[0] & 0x8000000) data[1] |= 1;
+            data[0]<<=1;
+            nbits++;
+            // ajouter un 1 eventuellement
+            if (w>DIFF) data[0] |= 1;
+        }
+        
+        i++;
+    }
+
+    /*if (nbits < MIN_GENERIC_SAMPLES)
+    {
+        // pas assez de data pour que ce soit un code valide
+        return ERR; // Error
+    }*/
+
+    // Success
+    results->bits = nbits;
+    results->value = data[0];
+    results->valueH= data[1];
+    results->decode_type = GENERIC;
+    return DECODED;
+
+
+/*
+;*** Time out value = 16 mS, --> Prescaler = 64
+;    1 timer tick = 64 uS
+; on est au d�but de l'impulsion
+; on boucle tant qu'on est dedans (d�tecteur � 0), tout
+; en v�rifiant qu'on n'a pas de timeout sur le TMR0 (16 ms)
+; si timeout �ventuellement on envoie le code
+
+MeasTlow
+	btfsc   PORTB,ibMODULE_IR       ;Skip if line low.
+	goto    HaveTlow        ;>> Handle this bit
+	btfss   INTCON,T0IF     ;Skip if time out
+	goto    MeasTlow        ;>> Loop until line high
+	goto    HaveData        ;>> Have data, now evaluate
+
+; on r�cup�re la dur�e de l'impulsion depuis TMR0 que l'on compare � la dur�e
+; de l'impulsion pr�c�dente, on insere cela dans le code par un shift de bits
+HaveTlow
+	movf    TMR0,W          ;Get time
+	subwf   bTlow0,W        ;W=Tlow0-(W=Tlow1)
+	subwf   bTlow0,F        ;bTlow0= Tlow0-W= Tlow0-Tlow0+Tlow1= Tlow1
+	call    ShiftInBit      ;Check difference, determine bit
+
+; d�but du blanc, mesurer sa dur�e, sortir si timeout
+MeasThigh
+	btfss   PORTB,ibMODULE_IR       ;Skip if line high.
+	goto    HaveThigh       ;>> Handle this bit
+	btfss   INTCON,T0IF     ;Skip if time out
+	goto    MeasThigh       ;>> Loop until line high
+
+
+; Ici on a re�u des donn�es IR, et le timeout de 16 ms a �t� d�pass�,
+; on a donc re�u un code complet. On va voir ce qu'on peut en faire...
+HaveData
+	btfsc   fREP_AUTORISEE  ; tester si on peut recevoir un message contenant peu de pulses
+	goto    validData       ; pas de limitation sur le nombre d'impulsions
+	
+	movf    bRemDat+5,W     ;Edge counter
+	addlw   0xf0            ;>=16?
+	btfss   STATUS,C        ;Skip if more than 16 edges
+	goto    invalidData
+
+	; on a suffisamment d'impulsions ou les codes r�p�titions sont autoris�s
+validData
+	bsf     fHAVE_IR_DATA
+
+invalidData
+	call    enableIt
+	goto    checkEvents
+
+HaveThigh
+	movf    TMR0,W          ;Get time
+	subwf   bThigh0,W       ;W=Thigh0-Thigh1
+	subwf   bThigh0,F       ;bThigh0=bThigh1
+	call    ShiftInBit      ;Check difference, determine bit
+	goto    MeasTlow        ;Measure next low pulse
+
+;*** Shift in 1 or 0 depending upon |W|
+
+ShiftInBit
+	clrf    TMR0            ;Setup for next measurement
+	bcf     INTCON,T0IF     ;Reset timeout flag
+	movwf   bTemp1          ;Store diff
+	btfsc   bTemp1,7        ;Skip if positive
+	sublw   0               ;Make it positive  (W= 0-W)
+	addlw   (0xff-DIFLIM)   ;Add limit for CY (C=1 si W<DIFLIM, cad changement de dur�e)
+	rlf     bRemDat,F       ;Rotate in CY
+	rlf     bRemDat+1,F     ;Rotate in CY
+	rlf     bRemDat+2,F     ;Rotate in CY
+	rlf     bRemDat+3,F     ;Rotate in CY
+	rlf     bRemDat+4,F     ;Rotate in CY
+	incf    bRemDat+5,F     ;1 more edge
+	return
+*/
+}
