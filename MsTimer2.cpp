@@ -36,7 +36,7 @@ void (*MsTimer2::func)();
 volatile char MsTimer2::overflowing;
 volatile unsigned int MsTimer2::tcnt2;
 
-void MsTimer2::set(unsigned long ms, void (*f)()) {
+void MsTimer2::set(void (*f)()) {
 	float prescaler = 0.0;
 	
 #if defined (__AVR_ATmega168__) || defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__) || defined (__AVR_ATmega328P__) || (__AVR_ATmega1280__)

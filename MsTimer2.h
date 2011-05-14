@@ -10,7 +10,7 @@ namespace MsTimer2 {
 	extern volatile char overflowing;
 	extern volatile unsigned int tcnt2;
 	
-	void set(unsigned long ms, void (*f)());
+	void set(void (*f)());
 	void start();
 	void stop();
 	void _overflow();

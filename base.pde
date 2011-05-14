@@ -62,7 +62,7 @@ digitalWrite(10, LOW); //debugDown();
 /***********************************************************************/
 void periodicSetup()
 {
-  MsTimer2::set(1, periodic);  // it period is 50µs, we need a call each it
+  MsTimer2::set(periodic);  // it period is 50µs, we need a call each it
   MsTimer2::start();
 }
 
