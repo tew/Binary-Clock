@@ -13,13 +13,19 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-DTEST_IR" />
 				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-DTEST_IR" />
 		</Compiler>
+		<Unit filename="IRremote.cpp" />
+		<Unit filename="IRremote.h" />
+		<Unit filename="IRremoteInt.h" />
+		<Unit filename="ir.pde" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
