@@ -26,6 +26,8 @@ unsigned long cpt_us= 0;
 unsigned long cpt_buffers=0;
 unsigned long cpt_hour=0;
 unsigned long cpt_key=0;
+uint8_t bck= 0;
+
 /***********************************************************************/
 void periodic(void)
 {
@@ -178,14 +180,24 @@ void loop() {
       
     case EVENT_IR:
       hourHH= param;
+      if (param==0) { bck= 0; backSetRVB(bck, bck, bck); }
+      else if (param==1) { bck= 1; backSetRVB(bck, bck, bck); }
+      else if (param==2) { bck= 2; backSetRVB(bck, bck, bck); }
+      else if (param==7) { bck= 253; backSetRVB(bck, bck, bck); }
+      else if (param==8) { bck= 254; backSetRVB(bck, bck, bck); }
+      else if (param==9) { bck= 255; backSetRVB(bck, bck, bck); }
       break;
 
     case EVENT_IR_PLUS:
       hourHH++;
+      bck++;
+      backSetRVB(bck, bck, bck);
       break;
       
     case EVENT_IR_MOINS:
       hourHH--;
+      bck--;
+      backSetRVB(bck, bck, bck);
       break;
     
     // no event

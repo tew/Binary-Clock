@@ -13,9 +13,12 @@ void backSetup(void)
 
 void backSetRVB(uint8_t rouge, uint8_t vert, uint8_t bleu)
 {
-  analogWrite(backPin[0], 255-rouge);
-  pinMode(backPin[1], OUTPUT);
-  analogWrite(backPin[1], 255-vert);
-  pinMode(backPin[2], OUTPUT);
-  analogWrite(backPin[2], 255-bleu);
+  if (rouge==0) digitalWrite(backPin[0], 1);
+  else analogWrite(backPin[0], 255-rouge);
+
+  if (vert==0) digitalWrite(backPin[1], 1); // reste à 1 seulement ~72ms, pourquoi? les autre pins sont ok
+  else analogWrite(backPin[1], 255-vert);
+  
+  if (bleu==0) digitalWrite(backPin[2], 1);
+  else analogWrite(backPin[2], 255-bleu);
 }
