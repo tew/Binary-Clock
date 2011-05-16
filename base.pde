@@ -29,7 +29,7 @@ unsigned long cpt_key=0;
 /***********************************************************************/
 void periodic(void)
 {
-digitalWrite(10, HIGH); //debugUp();
+//digitalWrite(11, HIGH); //debugUp();
   irPeriodic();  // 12,4µs
   cpt_us+= PERIODIC_BASE_US;  // 6,8µs
   
@@ -55,7 +55,7 @@ digitalWrite(10, HIGH); //debugUp();
       keyPeriodic();
     }
   }
-digitalWrite(10, LOW); //debugDown();
+//digitalWrite(11, LOW); //debugDown();
 }
 
 
@@ -77,6 +77,7 @@ void setup() {
   periodicSetup();
   irSetup();
   setupDebug();
+  backSetup();
 }
   
   

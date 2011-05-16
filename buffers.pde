@@ -5,7 +5,7 @@
 
 
 // partie buffers
-int bufferDataPins[BUFFERS_NB_LEDS]={0,1,2,3,4,5};
+int bufferDataPins[BUFFERS_NB_LEDS]={0,1,2,3,4,11};
 int bufferLatchEnablePins[BUFFERS_NB_BUFFERS]= {8, A3};
 int bufferOutputEnable= 9;
 int luminoPin=2;
@@ -30,8 +30,10 @@ void buffersSetRaw(int noBuffer, int value)
 //  unsigned char cur;
   
 //  for(int pin=0; pin < sizeof(bufferDataPins); pin++) {
-  value &= 0x3F;  // 6 bits conservés
-  PORTD= value;
+//  value &= 0x1F;  // 5 bits conservés, le 6e est envoyé sur PORTB.3
+  PORTD= (PORTD & (~0x1f)) | (value & 0x1F);
+  value >>= 2;
+  PORTB= (PORTB & (~0x04)) | (value & 0x04);
   digitalWrite(bufferLatchEnablePins[noBuffer], HIGH);
   digitalWrite(bufferLatchEnablePins[noBuffer], LOW);
 }

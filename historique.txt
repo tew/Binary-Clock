@@ -6,6 +6,10 @@
 - implement generic IR data code from URCR (UIRDIM), adding a test program to check that with onkio and aiwa RC
 - ajout support telecommande onkio: chiffres 0-9, volume +/- => modifie les heures
 
+16/05/2011
+- pilotage des PWM pour backligth, attention inverser D5 et D11 car D11 utilisait Timer2 pour la PWM. Hors timer2 utilisé pour it périodique.
+  D11 contrôle maintenant bit 5 des buffers. D5 pilote PWM backlight bleu.
+
 Extinctin après un certain temps dans le noir si alimentation par piles pour éviter de trop décharger (ref de tension nécessaire)
 Mettre photo en négatif derrière vitre, à rétroéclairer
 Transparent imprimé par laser
