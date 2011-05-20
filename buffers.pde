@@ -33,7 +33,7 @@ void buffersSetRaw(int noBuffer, int value)
 //  value &= 0x1F;  // 5 bits conservés, le 6e est envoyé sur PORTB.3
   PORTD= (PORTD & (~0x1f)) | (value & 0x1F);
   value >>= 2;
-  PORTB= (PORTB & (~0x04)) | (value & 0x04);
+  PORTB= (PORTB & (~0x08)) | (value & 0x08);
   digitalWrite(bufferLatchEnablePins[noBuffer], HIGH);
   digitalWrite(bufferLatchEnablePins[noBuffer], LOW);
 }

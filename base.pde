@@ -72,6 +72,7 @@ void periodicSetup()
 /***********************************************************************/
 void setup() {
   //Serial.begin(9600);
+  backSetup();
   event_init();
   buffersSetup();
   //setupDebug();
@@ -79,7 +80,6 @@ void setup() {
   periodicSetup();
   irSetup();
   setupDebug();
-  backSetup();
 }
   
   
