@@ -48,7 +48,7 @@ void periodic(void)
     cpt_hour++;  // 6.4µs
     if (cpt_hour == HOUR_REFRESH_PERIOD_MS) {  // 1.4µs
       cpt_hour= 0;
-      hourPeriodic();
+      event_addEvent(EVENT_HOUR, 0);
     }
 
     cpt_key++;  // 6.6µs
@@ -71,7 +71,7 @@ void periodicSetup()
 
 /***********************************************************************/
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
   backSetup();
   event_init();
   buffersSetup();
@@ -183,6 +183,10 @@ void loop() {
       if (param==0) { bck= 0; backSetRVB(bck, bck, bck); }
       else if (param==1) { bck= 1; backSetRVB(bck, bck, bck); }
       else if (param==2) { bck= 2; backSetRVB(bck, bck, bck); }
+      else if (param==3) { bck= 50; backSetRVB(bck, bck, bck); }
+      else if (param==4) { bck= 100; backSetRVB(bck, bck, bck); }
+      else if (param==5) { bck= 150; backSetRVB(bck, bck, bck); }
+      else if (param==6) { bck= 200; backSetRVB(bck, bck, bck); }
       else if (param==7) { bck= 253; backSetRVB(bck, bck, bck); }
       else if (param==8) { bck= 254; backSetRVB(bck, bck, bck); }
       else if (param==9) { bck= 255; backSetRVB(bck, bck, bck); }
@@ -200,6 +204,9 @@ void loop() {
       backSetRVB(bck, bck, bck);
       break;
     
+	case EVENT_HOUR:
+	  hourPeriodic();
+	  break;
     // no event
     default:
       luminoPeriodic();

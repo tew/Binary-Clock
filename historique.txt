@@ -10,6 +10,11 @@
 - pilotage des PWM pour backligth, attention inverser D5 et D11 car D11 utilisait Timer2 pour la PWM. Hors timer2 utilisé pour it périodique.
   D11 contrôle maintenant bit 5 des buffers. D5 pilote PWM backlight bleu.
 
+11/07/2011
+- hour periodic appelé sur event
+- adaptation backlight au hard, mis à zero pour éteint
+- ajout des codes telecommandes aiwa pour les touches 0 à 9 et  vol+/vol-
+
 Extinctin après un certain temps dans le noir si alimentation par piles pour éviter de trop décharger (ref de tension nécessaire)
 Mettre photo en négatif derrière vitre, à rétroéclairer
 Transparent imprimé par laser

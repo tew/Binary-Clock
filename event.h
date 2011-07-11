@@ -15,6 +15,8 @@ enum {
 	EVENT_LUMINO_MESURE,
 	EVENT_LUMINO_LEDS_OK,
 	
+	// Hour
+	EVENT_HOUR,
 	NB_EVENTS   // à laisser en dernier
 };
 
