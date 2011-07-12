@@ -31,11 +31,13 @@ void irLoop(void)
   int decoded,i;
   decoded= irrecv.decode(&results);
   if (decoded) {
+    irrecv.resume(); // Receive the next value
+    if ((decoded!=1) || (results.value != 0))
+    {
     Serial.print(decoded, DEC);
     Serial.print(": ");
     Serial.print(results.value, HEX);
     Serial.println("");
-    irrecv.resume(); // Receive the next value
     
     switch (results.value)
     {
@@ -83,9 +85,10 @@ void irLoop(void)
       case IR_AIWA_DECK2_STOP:    event_addEvent(EVENT_IR, IR_B_PLUS); break;
       case IR_AIWA_DECK1_STOP:    event_addEvent(EVENT_IR, IR_B_MOINS); break;
       case IR_AIWA_DECK2_PAUSE:   event_addEvent(EVENT_IR, IR_MODIFY_RGB); break;
-      case IR_AIWA_DECK2_REC:     event_addEvent(EVENT_IR, IR_MODIFY_YUV); break;
+      case IR_AIWA_DECK2_REC:     event_addEvent(EVENT_IR, IR_MODIFY_HSL); break;
       case IR_AIWA_POWER:         event_addEvent(EVENT_IR, IR_POWER); break;
       //default: event_addEvent(EVENT_IR, 63); break;
+    }
     }
   }
   else
