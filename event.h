@@ -20,4 +20,19 @@ enum {
 	NB_EVENTS   // à laisser en dernier
 };
 
+enum {
+        IR_0,
+        IR_PLUS=10,
+        IR_MOINS,
+        IR_R_PLUS,
+        IR_R_MOINS,
+        IR_G_PLUS,
+        IR_G_MOINS,
+        IR_B_PLUS,
+        IR_B_MOINS,
+        IR_MODIFY_RGB,
+        IR_MODIFY_YUV,
+        IR_POWER
+};
+
 #endif

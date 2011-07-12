@@ -26,7 +26,7 @@ unsigned long cpt_us= 0;
 unsigned long cpt_buffers=0;
 unsigned long cpt_hour=0;
 unsigned long cpt_key=0;
-uint8_t bck= 0;
+uint8_t Rbck,Gbck,Bbck= 0;
 
 /***********************************************************************/
 void periodic(void)
@@ -179,20 +179,31 @@ void loop() {
       break;
       
     case EVENT_IR:
-      hourHH= param;
-      if (param==0) { bck= 0; backSetRVB(bck, bck, bck); }
-      else if (param==1) { bck= 1; backSetRVB(bck, bck, bck); }
-      else if (param==2) { bck= 2; backSetRVB(bck, bck, bck); }
-      else if (param==3) { bck= 50; backSetRVB(bck, bck, bck); }
-      else if (param==4) { bck= 100; backSetRVB(bck, bck, bck); }
-      else if (param==5) { bck= 150; backSetRVB(bck, bck, bck); }
-      else if (param==6) { bck= 200; backSetRVB(bck, bck, bck); }
-      else if (param==7) { bck= 253; backSetRVB(bck, bck, bck); }
-      else if (param==8) { bck= 254; backSetRVB(bck, bck, bck); }
-      else if (param==9) { bck= 255; backSetRVB(bck, bck, bck); }
+      //hourHH= param;
+      switch(param)
+      {
+        case 0: Rbck= Gbck= Bbck=   0; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 1: Rbck= Gbck= Bbck=   1; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 2: Rbck= Gbck= Bbck=  10; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 3: Rbck= Gbck= Bbck=  50; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 4: Rbck= Gbck= Bbck= 100; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 5: Rbck= Gbck= Bbck= 150; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 6: Rbck= Gbck= Bbck= 200; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 7: Rbck= Gbck= Bbck= 253; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 8: Rbck= Gbck= Bbck= 254; backSetRVB(Rbck, Gbck, Bbck); break;
+        case 9: Rbck= Gbck= Bbck= 255; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_PLUS: Rbck++; Gbck++; Bbck++; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_MOINS: Rbck--; Gbck--; Bbck--; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_R_PLUS: Rbck++; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_R_MOINS: Rbck--; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_G_PLUS: Gbck++; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_G_MOINS: Gbck--; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_B_PLUS: Bbck++; backSetRVB(Rbck, Gbck, Bbck); break;
+        case IR_B_MOINS: Bbck--; backSetRVB(Rbck, Gbck, Bbck); break;
+      }
       break;
 
-    case EVENT_IR_PLUS:
+/*    case EVENT_IR_PLUS:
       hourHH++;
       bck++;
       backSetRVB(bck, bck, bck);
@@ -203,7 +214,7 @@ void loop() {
       bck--;
       backSetRVB(bck, bck, bck);
       break;
-    
+  */
 	case EVENT_HOUR:
 	  hourPeriodic();
 	  break;

@@ -1,5 +1,17 @@
 #include "IRremote.h"
 
+#define	IR_AIWA_DECK2_REC		0xCE018FFA
+#define	IR_AIWA_DECK2_PAUSE		0xCE018FF2
+#define	IR_AIWA_DECK2_REWIND	0xCE018FD2
+#define	IR_AIWA_DECK2_FORWARD	0xCE018FE2
+#define	IR_AIWA_DECK2_STOP		0xCE018FD6
+#define	IR_AIWA_DECK2_PLAY		0xCE018FEA
+#define	IR_AIWA_DECK1_REWIND	0x2E068FE6
+#define	IR_AIWA_DECK1_FORWARD	0x2E068FC6
+#define	IR_AIWA_DECK1_STOP		0x2E068FD6
+#define	IR_AIWA_DECK1_PLAY		0x2E068FEA
+#define	IR_AIWA_POWER			0x1E070FC0
+
 int RECV_PIN = 7;
 IRrecv irrecv(RECV_PIN);
 decode_results results;
@@ -59,10 +71,20 @@ void irLoop(void)
         event_addEvent(EVENT_IR, 9); break;
       case 0x4BB640BF:
       case 0x1E070FE2:
-        event_addEvent(EVENT_IR_PLUS, 0); break;
+        event_addEvent(EVENT_IR, IR_PLUS); break;
       case 0x4BB6C03F:
       case 0x1E070FD2:
-        event_addEvent(EVENT_IR_MOINS, 0); break;
+        event_addEvent(EVENT_IR, IR_MOINS); break;
+
+      case IR_AIWA_DECK2_REWIND:  event_addEvent(EVENT_IR, IR_R_PLUS); break;
+      case IR_AIWA_DECK1_REWIND:  event_addEvent(EVENT_IR, IR_R_MOINS); break;
+      case IR_AIWA_DECK2_FORWARD: event_addEvent(EVENT_IR, IR_G_PLUS); break;
+      case IR_AIWA_DECK1_FORWARD: event_addEvent(EVENT_IR, IR_G_MOINS); break;
+      case IR_AIWA_DECK2_STOP:    event_addEvent(EVENT_IR, IR_B_PLUS); break;
+      case IR_AIWA_DECK1_STOP:    event_addEvent(EVENT_IR, IR_B_MOINS); break;
+      case IR_AIWA_DECK2_PAUSE:   event_addEvent(EVENT_IR, IR_MODIFY_RGB); break;
+      case IR_AIWA_DECK2_REC:     event_addEvent(EVENT_IR, IR_MODIFY_YUV); break;
+      case IR_AIWA_POWER:         event_addEvent(EVENT_IR, IR_POWER); break;
       //default: event_addEvent(EVENT_IR, 63); break;
     }
   }
