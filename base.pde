@@ -26,8 +26,11 @@ unsigned long cpt_us= 0;
 unsigned long cpt_buffers=0;
 unsigned long cpt_hour=0;
 unsigned long cpt_key=0;
-uint8_t Rbck,Gbck,Bbck= 0;
-//uint8_t Hbck,Sbck,Lbck= 0;
+
+// backlight related variables
+const uint16_t HLSMAX = 240;
+const uint16_t RGBMAX = 255;
+uint8_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
 uint8_t mode_rgb= 1;
 
 /***********************************************************************/
@@ -92,6 +95,26 @@ enum {
 };
 
 unsigned char state= STATE_NORMAL;
+
+void bck_plus(uint8_t *value)
+{
+	value++;
+	
+	if ((!mode_rgb) && (*value > HLSMAX))
+	{
+		*value= 0;
+	}
+}
+
+void bck_moins(uint8_t *value)
+{
+	value--;
+	
+	if ((!mode_rgb) && (*value > HLSMAX))
+	{
+		*value= 0;
+	}
+}
 
 //#define  KEY_PRERIOD_MS  500
 //unsigned char keyState= 0;
@@ -184,29 +207,29 @@ void loop() {
       //hourHH= param;
       switch(param)
       {
-        case 0: Rbck= Gbck= Bbck=   0; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 1: Rbck= Gbck= Bbck=   1; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 2: Rbck= Gbck= Bbck=  10; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 3: Rbck= Gbck= Bbck=  50; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 4: Rbck= Gbck= Bbck= 100; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 5: Rbck= Gbck= Bbck= 150; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 6: Rbck= Gbck= Bbck= 200; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 7: Rbck= Gbck= Bbck= 253; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 8: Rbck= Gbck= Bbck= 254; backSetRVB(Rbck, Gbck, Bbck); break;
-        case 9: Rbck= Gbck= Bbck= 255; backSetRVB(Rbck, Gbck, Bbck); break;
-        case IR_PLUS: Rbck++; Gbck++; Bbck++; refreshBacklight(); break;
-        case IR_MOINS: Rbck--; Gbck--; Bbck--; refreshBacklight(); break;
-        case IR_R_PLUS: Rbck++; refreshBacklight(); break;
-        case IR_R_MOINS: Rbck--; refreshBacklight(); break;
-        case IR_G_PLUS: Gbck++; refreshBacklight(); break;
-        case IR_G_MOINS: Gbck--; refreshBacklight(); break;
-        case IR_B_PLUS: Bbck++; refreshBacklight(); break;
-        case IR_B_MOINS: Bbck--; refreshBacklight(); break;
+        case 0: bck[0]= bck[1]= bck[2]=   0; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 1: bck[0]= bck[1]= bck[2]=   1; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 2: bck[0]= bck[1]= bck[2]=  10; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 3: bck[0]= bck[1]= bck[2]=  50; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 4: bck[0]= bck[1]= bck[2]= 100; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 5: bck[0]= bck[1]= bck[2]= 150; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 6: bck[0]= bck[1]= bck[2]= 200; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 7: bck[0]= bck[1]= bck[2]= 253; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 8: bck[0]= bck[1]= bck[2]= 254; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case 9: bck[0]= bck[1]= bck[2]= 255; backSetRVB(bck[0], bck[1], bck[2]); break;
+        case IR_PLUS: bck_plus(&bck[0]); bck_plus(&bck[1]); bck_plus(&bck[2]); refreshBacklight(); break;
+        case IR_MOINS: bck_moins(&bck[0]); bck_moins(&bck[1]); bck_moins(&bck[2]); refreshBacklight(); break;
+        case IR_R_PLUS: bck_plus(&bck[0]); refreshBacklight(); break;
+        case IR_R_MOINS: bck_moins(&bck[0]); refreshBacklight(); break;
+        case IR_G_PLUS: bck_plus(&bck[1]); refreshBacklight(); break;
+        case IR_G_MOINS: bck_moins(&bck[1]); refreshBacklight(); break;
+        case IR_B_PLUS: bck_plus(&bck[2]); refreshBacklight(); break;
+        case IR_B_MOINS: bck_moins(&bck[2]); refreshBacklight(); break;
 		case IR_MODIFY_HSL:
 			if (mode_rgb)
 			{
 				// convertir RGB en HSL;
-				pix_calRGBtoHSL(Rbck, Gbck, Bbck, &Rbck, &Gbck, &Bbck);
+				pix_calRGBtoHSL(bck[0], bck[1], bck[2], &bck[0], &bck[1], &bck[2]);
                                 Serial.println("Mode HSL");
 				mode_rgb= 0;
 			}
@@ -215,7 +238,7 @@ void loop() {
 			if (!mode_rgb)
 			{
 				// convertir RGB en HSL;
-				pix_calHSLtoRGB(Rbck, Gbck, Bbck, &Rbck, &Gbck, &Bbck);
+				pix_calHSLtoRGB(bck[0], bck[1], bck[2], &bck[0], &bck[1], &bck[2]);
                                 Serial.println("Mode RGB");
 				mode_rgb= 1;
 			}
@@ -280,12 +303,12 @@ void refreshBacklight(void)
 	{
 		// convertir en RGB
                 Serial.print("Convert HSL2RGB: ");
-		pix_calHSLtoRGB(Rbck, Gbck, Bbck, &v1, &v2, &v3);
-                Serial.print(Rbck, DEC);
+		pix_calHSLtoRGB(bck[0], bck[1], bck[2], &v1, &v2, &v3);
+                Serial.print(bck[0], DEC);
                 Serial.print('.');
-                Serial.print(Gbck, DEC);
+                Serial.print(bck[1], DEC);
                 Serial.print('.');
-                Serial.print(Bbck, DEC);
+                Serial.print(bck[2], DEC);
                 Serial.print("->");
                 Serial.print(v1, DEC);
                 Serial.print('.');
@@ -297,12 +320,12 @@ void refreshBacklight(void)
         else
         {
                 Serial.print("Set RGB: ");
-                Serial.print(Rbck, DEC);
+                Serial.print(bck[0], DEC);
                 Serial.print('.');
-                Serial.print(Gbck, DEC);
+                Serial.print(bck[1], DEC);
                 Serial.print('.');
-                Serial.println(Bbck, DEC);
-        	backSetRVB(Rbck, Gbck, Bbck);
+                Serial.println(bck[2], DEC);
+        	backSetRVB(bck[0], bck[1], bck[2]);
         }
 }
 
