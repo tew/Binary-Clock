@@ -13,13 +13,15 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="D:\USERS\TEW\Electronique\HB\base" />
 				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="main.c">
+		<Unit filename="..\pixel.pde" />
+		<Unit filename="test_pixel.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
