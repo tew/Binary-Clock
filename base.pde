@@ -23,6 +23,7 @@ We need to modify them to make them compatible. So their are included in the cod
 
 
 unsigned long cpt_us= 0;
+unsigned long cpt_ms= 0;
 unsigned long cpt_buffers=0;
 unsigned long cpt_hour=0;
 unsigned long cpt_key=0;
@@ -32,6 +33,13 @@ const uint16_t HLSMAX = 240;
 const uint16_t RGBMAX = 255;
 uint8_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
 uint8_t mode_rgb= 1;
+
+enum {
+  BCK_MANUAL,
+  BCK_HUE_SHIFT,
+  BCK_NB
+};
+uint8_t state_bck= BCK_MANUAL;
 
 /***********************************************************************/
 void periodic(void)
@@ -61,6 +69,14 @@ void periodic(void)
       cpt_key= 0;
       keyPeriodic();
     }
+    
+    cpt_ms++;
+    if (cpt_ms == 100)
+    {
+      cpt_ms= 0;
+      event_addEvent(EVENT_BCK, 0);
+    }
+
   }
 //digitalWrite(11, LOW); //debugDown();
 }
@@ -98,21 +114,21 @@ unsigned char state= STATE_NORMAL;
 
 void bck_plus(uint8_t *value)
 {
-	value++;
+	(*value)++;
 	
-	if ((!mode_rgb) && (*value > HLSMAX))
+	if ((!mode_rgb) && ((*value) > HLSMAX))
 	{
-		*value= 0;
+		(*value)= 0;
 	}
 }
 
 void bck_moins(uint8_t *value)
 {
-	value--;
+	(*value)--;
 	
-	if ((!mode_rgb) && (*value > HLSMAX))
+	if ((!mode_rgb) && ((*value) > HLSMAX))
 	{
-		*value= 0;
+		(*value)= HLSMAX;
 	}
 }
 
@@ -246,6 +262,12 @@ void loop() {
       }
       break;
 
+      case EVENT_BCK:
+        if (!mode_rgb)
+        {
+          bck_plus(&bck[0]); refreshBacklight();
+        }
+        break;
 /*    case EVENT_IR_PLUS:
       hourHH++;
       bck++;

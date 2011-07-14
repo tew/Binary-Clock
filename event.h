@@ -17,6 +17,10 @@ enum {
 	
 	// Hour
 	EVENT_HOUR,
+
+        // backlight
+        EVENT_BCK,
+
 	NB_EVENTS   // à laisser en dernier
 };
 
