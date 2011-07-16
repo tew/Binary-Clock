@@ -99,7 +99,7 @@ void periodicSetup()
 
 /***********************************************************************/
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   backSetup();
   event_init();
   buffersSetup();
@@ -182,6 +182,7 @@ void manage_bck(void)
 		case BCK_OFF:
 		default:
 			state_bck= BCK_OFF;
+                        backSetRVB(0,0,0);
 			break;
         /*if (!mode_rgb)
         {
@@ -337,7 +338,16 @@ void loop() {
 				case BCK_HUE_SHIFT_SLOW: state_bck= BCK_HUE_SHIFT; break;
 				case BCK_HUE_SHIFT:		 state_bck= BCK_HUE_SHIFT_FAST; break;
 				case BCK_HUE_SHIFT_FAST: state_bck= BCK_STATIC; break;
-				default: state_bck= BCK_HUE_SHIFT_SLOW; break;
+				default: 
+                                  state_bck= BCK_HUE_SHIFT_SLOW;
+                                  mode_rgb= 0;
+                                  // setting max saturation and luminosity if not defined
+                                  if ((bck[1]==0) || (bck[2]==0))
+                                  {
+                                    bck[1]=HLSMAX;
+                                    bck[2]=HLSMAX/2;
+                                  }
+                                  break;
 			}
 			break;
 			
