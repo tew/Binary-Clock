@@ -31,13 +31,20 @@ unsigned long cpt_key=0;
 // backlight related variables
 const uint16_t HLSMAX = 1530;
 const uint16_t RGBMAX = 255;
+
+// management of back LEDs
 uint16_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
 uint8_t mode_rgb= 1;
+uint8_t	bck_tempo=0;	// divisor for soem states
 
 enum {
-  BCK_MANUAL,
-  BCK_HUE_SHIFT,
-  BCK_NB
+	BCK_OFF,
+	BCK_STATIC,
+	BCK_HUE_SHIFT_SLOW,
+	BCK_HUE_SHIFT,
+	BCK_HUE_SHIFT_FAST,
+	BCK_MANUAL,
+	BCK_NB
 };
 uint8_t state_bck= BCK_MANUAL;
 
@@ -104,13 +111,14 @@ void setup() {
 }
   
   
-
+/* state of pink LEDs. Those LEDs normally display the time (hours and minutes) */
 enum {
-  STATE_NORMAL,
-  STATE_SECONDS
+  PINK_NORMAL,	// hour+minutes
+  PINK_SECONDS,	// minutes+seconds
+  PINK_OFF
 };
 
-unsigned char state= STATE_NORMAL;
+unsigned char state_pink= PINK_NORMAL;
 
 void bck_plus(uint16_t *value)
 {
@@ -138,6 +146,48 @@ void bck_moins(uint16_t *value)
 	{
           if ((*value) > HLSMAX) (*value)= HLSMAX;
 	}
+}
+
+void manage_bck(void)
+{
+	static uint8_t divisor= 0;
+	
+	switch(state_bck)
+	{
+		case BCK_STATIC:
+			break;
+
+		case BCK_HUE_SHIFT_FAST:
+			bck[0]= (bck[0]+2)%HLSMAX;
+			refreshBacklight();
+			break;
+
+		case BCK_HUE_SHIFT:
+			bck[0]=(bck[0]+1)%HLSMAX;
+			refreshBacklight();
+			break;
+
+		case BCK_HUE_SHIFT_SLOW:
+			divisor= (divisor+1)%2;
+			if (!divisor)
+			{
+				bck[0]=(bck[0]+1)%HLSMAX;
+				refreshBacklight();
+			}
+			break;
+
+		case BCK_MANUAL:
+			break;
+
+		case BCK_OFF:
+		default:
+			state_bck= BCK_OFF;
+			break;
+        /*if (!mode_rgb)
+        {
+          bck_plus(&bck[0]); refreshBacklight();
+        }*/
+        }
 }
 
 //#define  KEY_PRERIOD_MS  500
@@ -217,8 +267,8 @@ void loop() {
         hourRTCsave();
       }
 
-      if (param == 4) state= STATE_SECONDS;
-      if (param == 4 | 0x80) state= STATE_NORMAL;
+      if (param == 4) state_pink= PINK_SECONDS;
+      if (param == 4 | 0x80) state_pink= PINK_NORMAL;
       
       //XXX
       if (param == 2)
@@ -279,14 +329,26 @@ void loop() {
 				mode_rgb= 1;
 			}
 			break;
+		
+		// playing cases
+		case IR_HUE_SHIFT:
+			switch (state_bck)
+			{
+				case BCK_HUE_SHIFT_SLOW: state_bck= BCK_HUE_SHIFT; break;
+				case BCK_HUE_SHIFT:		 state_bck= BCK_HUE_SHIFT_FAST; break;
+				case BCK_HUE_SHIFT_FAST: state_bck= BCK_STATIC; break;
+				default: state_bck= BCK_HUE_SHIFT_SLOW; break;
+			}
+			break;
+			
+		case IR_STOP:
+			state_bck= BCK_OFF;
+			break;
       }
       break;
 
       case EVENT_BCK:
-        if (!mode_rgb)
-        {
-          bck_plus(&bck[0]); refreshBacklight();
-        }
+		manage_bck();
         break;
 /*    case EVENT_IR_PLUS:
       hourHH++;
@@ -308,16 +370,16 @@ void loop() {
       luminoPeriodic();
       break;
   }
-  if  (getKey() == 4) state= STATE_SECONDS;
-  else state= STATE_NORMAL;
+  if  (getKey() == 4) state_pink= PINK_SECONDS;
+  else state_pink= PINK_NORMAL;
   
-  switch(state)
+  switch(state_pink)
   {
-    case STATE_NORMAL:
+    case PINK_NORMAL:
       hourDisplay();
       break;
       
-    case STATE_SECONDS:
+    case PINK_SECONDS:
       hourDisplaySeconds();
       break;
   }

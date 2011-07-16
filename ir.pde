@@ -20,7 +20,7 @@ void irPeriodic(void)
 
 void irLoop(void)
 {
-  int decoded,i;
+  int decoded,i,found;
   decoded= irrecv.decode(&results);
   if (decoded) {
     irrecv.resume(); // Receive the next value
@@ -31,6 +31,7 @@ void irLoop(void)
     Serial.print(results.value, HEX);
     Serial.println("");
     
+	found= 1;
     switch (results.value)
     {
       case IR_ONKYO_0:
@@ -80,7 +81,24 @@ void irLoop(void)
       case IR_AIWA_DECK2_REC:     event_addEvent(EVENT_IR, IR_MODIFY_HSL); break;
       case IR_AIWA_POWER:         event_addEvent(EVENT_IR, IR_POWER); break;
       //default: event_addEvent(EVENT_IR, 63); break;
+	  
+	  // next are playing codes
+	  case IR_ONKYO_PLAY:
+	  case IR_AIWA_CD_PLAY_PAUSE:
+		event_addEvent(EVENT_IR, IR_HUE_SHIFT); break;
+	  
+	  case IR_ONKYO_STOP:
+	  case IR_AIWA_CD_STOP:
+	    event_addEvent(EVENT_IR, IR_STOP); break;
+
+	  default:
+		found= 0;
+		break;
     }
+	if (found)
+	{
+		// on pourrait faire clignoter une LED rose
+	}
     }
   }
   else

@@ -36,7 +36,9 @@ enum {
         IR_B_MOINS,
         IR_MODIFY_RGB,
         IR_MODIFY_HSL,
-        IR_POWER
+        IR_POWER,
+		IR_HUE_SHIFT,
+		IR_STOP
 };
 
 #endif
