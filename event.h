@@ -20,6 +20,9 @@ enum {
 
         // backlight
         EVENT_BCK,
+        
+        // luminosite
+        EVENT_LUMINOSITE,
 
 	NB_EVENTS   // à laisser en dernier
 };

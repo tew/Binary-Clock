@@ -82,6 +82,7 @@ void periodic(void)
     {
       cpt_ms= 0;
       event_addEvent(EVENT_BCK, 0);
+      //event_addEvent(EVENT_LUMINO_MESURE, 0);
     }
 
   }
@@ -115,7 +116,8 @@ void setup() {
 enum {
   PINK_NORMAL,	// hour+minutes
   PINK_SECONDS,	// minutes+seconds
-  PINK_OFF
+  PINK_OFF,
+  PINK_NB
 };
 
 //uint8_t pink_pwm= 5;
@@ -270,8 +272,8 @@ void loop() {
         hourRTCsave();
       }
 
-      if (param == 4) state_pink= PINK_SECONDS;
-      if (param == 4 | 0x80) state_pink= PINK_NORMAL;
+      if (param == 4) state_pink= PINK_SECONDS;        // appui sur touche minutes
+      if (param == 4 | 0x80) state_pink= PINK_NORMAL;  // touche minutes relachée
       
       //XXX
       if (param == 2)
@@ -381,8 +383,13 @@ void loop() {
 	  hourPeriodic();
 	  break;
     // no event
+    
+//    case EVENT_LUMINO_MESURE:
+//      break;
+      
     default:
       luminoPeriodic();
+      
 	 // analogWrite(9, 255-pink_pwm);
       break;
   }

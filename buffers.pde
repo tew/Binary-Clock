@@ -38,9 +38,12 @@ void buffersSetRaw(int noBuffer, int value)
   digitalWrite(bufferLatchEnablePins[noBuffer], LOW);
 }
 
+uint8_t state_lumino= 1;
+
 void luminoPeriodic()
 {
-  static uint16_t toto= 0;
+  //static uint16_t toto= 0;
+  static int current=0;
   int sensorValue = analogRead(luminoPin);
 //  int outputValue = map(sensorValue, 0, 800, 40, 255);
   int outputValue = map(sensorValue, 0, 180, 2, 240);
@@ -54,8 +57,17 @@ void luminoPeriodic()
   /*
   Serial.print("\t output = ");      
   Serial.println(outputValue);   */
-  analogWrite(bufferOutputEnable, 255-outputValue);
+  if (outputValue>current) current++;
+  if (outputValue<current) current--;
+  if (state_lumino) analogWrite(bufferOutputEnable, 255-current);
+  else analogWrite(bufferOutputEnable, 255);
 }
+
+void luminoSetState(uint8_t state)
+{
+	state_lumino= state;
+}
+
 
 void buffersPeriodic()
 {
