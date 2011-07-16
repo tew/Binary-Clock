@@ -34,6 +34,7 @@
 - ajout des codes onkyo et aiwa manquants
 - ajout des modes HUE shift (slow/normal/fast) selectionnables par télécommande
 - valeurs par defaut lors de la selection du mode hue shift
+- calibrage luminosité LEDs roses
 
 Extinctin après un certain temps dans le noir si alimentation par piles pour éviter de trop décharger (ref de tension nécessaire)
 Mettre photo en négatif derrière vitre, à rétroéclairer

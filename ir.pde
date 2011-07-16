@@ -65,10 +65,8 @@ void irLoop(void)
       case IR_AIWA_9:
         event_addEvent(EVENT_IR, 9); break;
       case IR_ONKYO_VOL_PLUS:
-      case IR_AIWA_VOL_PLUS:
         event_addEvent(EVENT_IR, IR_PLUS); break;
       case IR_ONKYO_VOL_MOINS:
-      case IR_AIWA_VOL_MOINS:
         event_addEvent(EVENT_IR, IR_MOINS); break;
 
       case IR_AIWA_DECK2_REWIND:  event_addEvent(EVENT_IR, IR_R_PLUS); break;
@@ -82,6 +80,9 @@ void irLoop(void)
       case IR_AIWA_POWER:         event_addEvent(EVENT_IR, IR_POWER); break;
       //default: event_addEvent(EVENT_IR, 63); break;
 	  
+	  case IR_AIWA_VOL_PLUS: event_addEvent(EVENT_IR, IR_LUM_PLUS); break;
+	  case IR_AIWA_VOL_MOINS: event_addEvent(EVENT_IR, IR_LUM_MOINS); break;
+
 	  // next are playing codes
 	  case IR_ONKYO_PLAY:
 	  case IR_AIWA_CD_PLAY_PAUSE:

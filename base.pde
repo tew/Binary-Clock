@@ -118,6 +118,8 @@ enum {
   PINK_OFF
 };
 
+//uint8_t pink_pwm= 5;
+
 unsigned char state_pink= PINK_NORMAL;
 
 void bck_plus(uint16_t *value)
@@ -330,6 +332,9 @@ void loop() {
 				mode_rgb= 1;
 			}
 			break;
+			
+		//case IR_LUM_PLUS: pink_pwm++; Serial.println(pink_pwm, DEC); break;
+		//case IR_LUM_MOINS:	pink_pwm--; Serial.println(pink_pwm, DEC); break;
 		
 		// playing cases
 		case IR_HUE_SHIFT:
@@ -378,6 +383,7 @@ void loop() {
     // no event
     default:
       luminoPeriodic();
+	 // analogWrite(9, 255-pink_pwm);
       break;
   }
   if  (getKey() == 4) state_pink= PINK_SECONDS;

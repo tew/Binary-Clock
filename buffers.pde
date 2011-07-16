@@ -40,13 +40,20 @@ void buffersSetRaw(int noBuffer, int value)
 
 void luminoPeriodic()
 {
+  static uint16_t toto= 0;
   int sensorValue = analogRead(luminoPin);
-  int outputValue = map(sensorValue, 0, 800, 1, 255);
-/*    Serial.print("sensor = " );                       
-  Serial.print(sensorValue);      
+//  int outputValue = map(sensorValue, 0, 800, 40, 255);
+  int outputValue = map(sensorValue, 0, 180, 2, 240);
+  /*toto++;
+  if (toto==1000)
+  {
+    Serial.print("sensor = " );                       
+  Serial.println(sensorValue);
+  toto=0;
+  }*/
+  /*
   Serial.print("\t output = ");      
   Serial.println(outputValue);   */
-
   analogWrite(bufferOutputEnable, 255-outputValue);
 }
 
