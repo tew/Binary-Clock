@@ -1,16 +1,7 @@
 #include "IRremote.h"
 
-#define	IR_AIWA_DECK2_REC		0xCE018FFA
-#define	IR_AIWA_DECK2_PAUSE		0xCE018FF2
-#define	IR_AIWA_DECK2_REWIND	0xCE018FD2
-#define	IR_AIWA_DECK2_FORWARD	0xCE018FE2
-#define	IR_AIWA_DECK2_STOP		0xCE018FD6
-#define	IR_AIWA_DECK2_PLAY		0xCE018FEA
-#define	IR_AIWA_DECK1_REWIND	0x2E068FE6
-#define	IR_AIWA_DECK1_FORWARD	0x2E068FC6
-#define	IR_AIWA_DECK1_STOP		0x2E068FD6
-#define	IR_AIWA_DECK1_PLAY		0x2E068FEA
-#define	IR_AIWA_POWER			0x1E070FC0
+#include "ir_aiwa.h"
+#include "ir_onkyo.h"
 
 int RECV_PIN = 7;
 IRrecv irrecv(RECV_PIN);
@@ -25,6 +16,7 @@ void irPeriodic(void)
 {
   irrecv.irPeriodic();
 }
+
 
 void irLoop(void)
 {
@@ -41,41 +33,41 @@ void irLoop(void)
     
     switch (results.value)
     {
-      case 0x4BB6A956:
-      case 0x2E068FD4:
+      case IR_ONKYO_0:
+      case IR_AIWA_0:
         event_addEvent(EVENT_IR, 0); break;
-      case 0x4B3632CD:
-      case 0x2E068FE0:
+      case IR_ONKYO_1:
+      case IR_AIWA_1:
         event_addEvent(EVENT_IR, 1); break;
-      case 0x4BB622DD:
-      case 0x2E068FD0:
+      case IR_ONKYO_2:
+      case IR_AIWA_2:
         event_addEvent(EVENT_IR, 2); break;
-      case 0x4B3618E7:
-      case 0x2E068FF0:
+      case IR_ONKYO_3:
+      case IR_AIWA_3:
         event_addEvent(EVENT_IR, 3); break;
-      case 0x4B36B24D:
-      case 0x2E068FC8:
+      case IR_ONKYO_4:
+      case IR_AIWA_4:
         event_addEvent(EVENT_IR, 4); break;
-      case 0x4B36728D:
-      case 0x2E068FE8:
+      case IR_ONKYO_5:
+      case IR_AIWA_5:
         event_addEvent(EVENT_IR, 5); break;
-      case 0x4B369867:
-      case 0x2E068FD8:
+      case IR_ONKYO_6:
+      case IR_AIWA_6:
         event_addEvent(EVENT_IR, 6); break;
-      case 0x4BB69A65:
-      case 0x2E068FF8:
+      case IR_ONKYO_7:
+      case IR_AIWA_7:
         event_addEvent(EVENT_IR, 7); break;
-      case 0x4B3622DD:
-      case 0x2E068FC4:
+      case IR_ONKYO_8:
+      case IR_AIWA_8:
         event_addEvent(EVENT_IR, 8); break;
-      case 0x4B3642BD:
-      case 0x2E068FE4:
+      case IR_ONKYO_9:
+      case IR_AIWA_9:
         event_addEvent(EVENT_IR, 9); break;
-      case 0x4BB640BF:
-      case 0x1E070FE2:
+      case IR_ONKYO_VOL_PLUS:
+      case IR_AIWA_VOL_PLUS:
         event_addEvent(EVENT_IR, IR_PLUS); break;
-      case 0x4BB6C03F:
-      case 0x1E070FD2:
+      case IR_ONKYO_VOL_MOINS:
+      case IR_AIWA_VOL_MOINS:
         event_addEvent(EVENT_IR, IR_MOINS); break;
 
       case IR_AIWA_DECK2_REWIND:  event_addEvent(EVENT_IR, IR_R_PLUS); break;

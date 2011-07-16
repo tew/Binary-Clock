@@ -1,4 +1,5 @@
 
+
 #ifdef DEBUG_PIXEL
 const uint16_t HLSMAX = 1530;
 const uint16_t RGBMAX = 255;
