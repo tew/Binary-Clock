@@ -1,4 +1,9 @@
 
+#ifdef DEBUG_PIXEL
+const uint16_t HLSMAX = 1530;
+const uint16_t RGBMAX = 255;
+#endif
+
 // conversion RVB<->HSL: http://files.codes-sources.com/fichier.aspx?id=24541&f=Code\Calcul.cpp
 int maxi_tbl(int* tbl, int taille)
 {
@@ -26,20 +31,20 @@ int mini_tbl(int* tbl, int taille)
 
 
 /* convertit en HSL un pixel au format RVB 888 */
-void pix_calRGBtoHSL(uint8_t R_u8, uint8_t G_u8, uint8_t B_u8, uint8_t *H_u8, uint8_t *S_u8, uint8_t *L_u8)
+void pix_calRGBtoHSL(uint16_t R, uint16_t G, uint16_t B, uint16_t *pH, uint16_t *pS, uint16_t *pL)
 {
 	//PixelHSL	Result;
 	int tbl[3];
 
 	uint16_t H, L, S;	// Pour récupérer les infos de la fonction
-    uint16_t R, G, B;          /* input RGB values */
+    //uint16_t R, G, B;          /* input RGB values */
     uint8_t cMax,cMin;      /* max and min RGB values */
     uint16_t  Rdelta,Gdelta,Bdelta; /* intermediate value: % of spread from max*/
 
 	// Place mes couleurs dans les variables du code
-	tbl[0]=R= R_u8;
-	tbl[1]=G= G_u8;
-	tbl[2]=B= B_u8;
+	tbl[0]= R;
+	tbl[1]= G;
+	tbl[2]= B;
 
     /* calculate lightness */
     cMax = maxi_tbl(tbl, 3);
@@ -78,15 +83,15 @@ void pix_calRGBtoHSL(uint8_t R_u8, uint8_t G_u8, uint8_t B_u8, uint8_t *H_u8, ui
 	}
 
 	// Recupère les informations traitées
-	*S_u8=(unsigned char)S;
-	*L_u8=(unsigned char)L;
+	*pS=(uint16_t)S;
+	*pL=(uint16_t)L;
 /*	if (*S_u8 ==0)
 	{
-		*H_u8= PIX_REDUCED_HUE_NB_MAX;
+		*pH= PIX_REDUCED_HUE_NB_MAX;
 	}
 	else
 	{*/
-		*H_u8=(unsigned char)H;
+		*pH=(uint16_t)H;
 	/*}*/
 }
 
@@ -116,20 +121,20 @@ void pix_calRGBtoHSL(uint8_t R_u8, uint8_t G_u8, uint8_t B_u8, uint8_t *H_u8, ui
 }
 
 
-void pix_calHSLtoRGB(uint8_t H_u8, uint8_t S_u8, uint8_t L_u8, uint8_t *R_u8, uint8_t *G_u8, uint8_t *B_u8)
+void pix_calHSLtoRGB(uint16_t H, uint16_t S, uint16_t L, uint16_t *pR, uint16_t *pG, uint16_t *pB)
 {
 	uint16_t R,G,B; /* RGB component values */
 	uint16_t Magic1,Magic2; /* calculated magic numbers (really!) */
 	uint16_t hue, lum, sat;
 
 	// Initialise les variables
-	hue=H_u8;
-	sat=S_u8;
-	lum=L_u8;
+	hue=H;
+	sat=S;
+	lum=L;
 
 	if (sat == 0) { /* achromatic case */
 		R=G=B=(lum*RGBMAX)/HLSMAX;
-		if (hue != 120) {
+		if (hue != (HLSMAX/2)) {
 			/* ERROR */
 		}
 	}
@@ -147,8 +152,10 @@ void pix_calHSLtoRGB(uint8_t H_u8, uint8_t S_u8, uint8_t L_u8, uint8_t *R_u8, ui
 		B = (HueToRGB(Magic1,Magic2,hue-(HLSMAX/3))*RGBMAX +(HLSMAX/2))/HLSMAX;
 	}
 
-	*R_u8= R;
-	*G_u8= G;
-	*B_u8= B;
-	printf("%u\t%u\t%u\t%u\t%u\t%u\n", hue, Magic1, Magic2, *R_u8, *G_u8, *B_u8);
-} 
+	*pR= R;
+	*pG= G;
+	*pB= B;
+#ifdef DEBUG_PIXEL
+	fprintf(outfile, "%u\t%u\t%u\t%u\t%u\t%u\n", hue, Magic1, Magic2, *pR, *pG, *pB);
+#endif
+}

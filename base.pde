@@ -29,9 +29,9 @@ unsigned long cpt_hour=0;
 unsigned long cpt_key=0;
 
 // backlight related variables
-const uint16_t HLSMAX = 240;
+const uint16_t HLSMAX = 1530;
 const uint16_t RGBMAX = 255;
-uint8_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
+uint16_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
 uint8_t mode_rgb= 1;
 
 enum {
