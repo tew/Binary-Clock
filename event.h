@@ -43,7 +43,9 @@ enum {
 		IR_HUE_SHIFT,
 		IR_STOP,
 		IR_LUM_PLUS,
-		IR_LUM_MOINS
+		IR_LUM_MOINS,
+        IR_BCK_REC,
+        IR_BCK_RECALL
 };
 
 #endif

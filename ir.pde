@@ -92,6 +92,12 @@ void irLoop(void)
 	  case IR_AIWA_CD_STOP:
 	    event_addEvent(EVENT_IR, IR_STOP); break;
 
+          case IR_ONKYO_REC:
+            event_addEvent(EVENT_IR, IR_BCK_REC); break;
+
+          case IR_ONKYO_EJECT:
+            event_addEvent(EVENT_IR, IR_BCK_RECALL); break;
+
 	  default:
 		found= 0;
 		break;

@@ -34,6 +34,7 @@ const uint16_t RGBMAX = 255;
 
 // management of back LEDs
 uint16_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
+uint16_t        bck_saved[3];
 uint8_t mode_rgb= 1;
 uint8_t	bck_tempo=0;	// divisor for soem states
 
@@ -100,7 +101,7 @@ void periodicSetup()
 
 /***********************************************************************/
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
   backSetup();
   event_init();
   buffersSetup();
@@ -159,10 +160,11 @@ void manage_bck(void)
 	switch(state_bck)
 	{
 		case BCK_STATIC:
+                        refreshBacklight();
 			break;
 
 		case BCK_HUE_SHIFT_FAST:
-			bck[0]= (bck[0]+2)%HLSMAX;
+			bck[0]= (bck[0]+4)%HLSMAX;
 			refreshBacklight();
 			break;
 
@@ -172,7 +174,7 @@ void manage_bck(void)
 			break;
 
 		case BCK_HUE_SHIFT_SLOW:
-			divisor= (divisor+1)%2;
+			divisor= (divisor+1)%4;
 			if (!divisor)
 			{
 				bck[0]=(bck[0]+1)%HLSMAX;
@@ -344,7 +346,12 @@ void loop() {
 			{
 				case BCK_HUE_SHIFT_SLOW: state_bck= BCK_HUE_SHIFT; break;
 				case BCK_HUE_SHIFT:		 state_bck= BCK_HUE_SHIFT_FAST; break;
-				case BCK_HUE_SHIFT_FAST: state_bck= BCK_STATIC; break;
+				
+                                case BCK_STATIC:
+                                case BCK_HUE_SHIFT_FAST:
+                                  state_bck= BCK_HUE_SHIFT_SLOW;
+                                  break;
+
 				default: 
                                   state_bck= BCK_HUE_SHIFT_SLOW;
                                   mode_rgb= 0;
@@ -359,9 +366,31 @@ void loop() {
 			break;
 			
 		case IR_STOP:
-			state_bck= BCK_OFF;
-			break;
-      }
+                        switch(state_bck)
+                        {
+		          case BCK_HUE_SHIFT_SLOW:
+			  case BCK_HUE_SHIFT:
+			  case BCK_HUE_SHIFT_FAST:
+                              state_bck= BCK_STATIC;
+                              break;
+                          case BCK_STATIC:
+    			    state_bck= BCK_OFF;
+		  	    break;
+                        }
+                        break;
+                        
+                case IR_BCK_REC:
+                  memcpy(bck_saved, bck, sizeof(bck_saved));
+                  Serial.println("Saved");
+                  break;
+                  
+                case IR_BCK_RECALL:
+                  memcpy(bck, bck_saved, sizeof(bck_saved));
+                  state_bck= BCK_STATIC;
+                  mode_rgb= 0;
+                  Serial.println("Recall");
+                  break;
+              }
       break;
 
       case EVENT_BCK:
