@@ -39,5 +39,10 @@ int main()
     }
     
     fclose(outfile);
+
+    
+        pix_calRGBtoHSL(R,G,B, &H,&S,&L);
+        pix_calHSLtoRGB(H,S,L,&R,&G,&B);
+
     return 0;
 }

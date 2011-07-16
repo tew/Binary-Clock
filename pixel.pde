@@ -38,7 +38,7 @@ void pix_calRGBtoHSL(uint16_t R, uint16_t G, uint16_t B, uint16_t *pH, uint16_t 
 
 	uint16_t H, L, S;	// Pour récupérer les infos de la fonction
     //uint16_t R, G, B;          /* input RGB values */
-    uint8_t cMax,cMin;      /* max and min RGB values */
+    uint16_t cMax,cMin;      /* max and min RGB values */
     uint16_t  Rdelta,Gdelta,Bdelta; /* intermediate value: % of spread from max*/
 
 	// Place mes couleurs dans les variables du code
@@ -50,24 +50,24 @@ void pix_calRGBtoHSL(uint16_t R, uint16_t G, uint16_t B, uint16_t *pH, uint16_t 
     cMax = maxi_tbl(tbl, 3);
     cMin = mini_tbl(tbl, 3);
     
-    L = ( ((cMax+cMin)*HLSMAX) + RGBMAX )/(2*RGBMAX);
+    L = ( ((uint32_t)(cMax+cMin)*HLSMAX) + RGBMAX )/(2*RGBMAX);
 
     if (cMax == cMin) {           /* r=g=b --> achromatic case */
         S = 0;                     /* saturation */
-        H = 255;             /* hue */
+        H = (HLSMAX/2);            /* hue */
 	}
     else {                        /* chromatic case */
         /* saturation */
         if (L <= (HLSMAX/2))
-           S = ( ((cMax-cMin)*HLSMAX) + ((cMax+cMin)/2) ) / (cMax+cMin);
+           S = ( ((uint32_t)(cMax-cMin)*HLSMAX) + ((cMax+cMin)/2) ) / (cMax+cMin);
         else
-           S = ( ((cMax-cMin)*HLSMAX) + ((2*RGBMAX-cMax-cMin)/2) )
+           S = ( ((uint32_t)(cMax-cMin)*HLSMAX) + ((2*RGBMAX-cMax-cMin)/2) )
               / (2*RGBMAX-cMax-cMin);
 
 	    /* hue */
-	    Rdelta = ( ((cMax-R)*(HLSMAX/6)) + ((cMax-cMin)/2) ) / (cMax-cMin);
-		Gdelta = ( ((cMax-G)*(HLSMAX/6)) + ((cMax-cMin)/2) ) / (cMax-cMin);
-		Bdelta = ( ((cMax-B)*(HLSMAX/6)) + ((cMax-cMin)/2) ) / (cMax-cMin);
+	    Rdelta = ( ((uint32_t)(cMax-R)*(HLSMAX/6)) + ((cMax-cMin)/2) ) / (cMax-cMin);
+		Gdelta = ( ((uint32_t)(cMax-G)*(HLSMAX/6)) + ((cMax-cMin)/2) ) / (cMax-cMin);
+		Bdelta = ( ((uint32_t)(cMax-B)*(HLSMAX/6)) + ((cMax-cMin)/2) ) / (cMax-cMin);
 
 		if (R == cMax)
 			H = Bdelta - Gdelta;
@@ -111,11 +111,11 @@ void pix_calRGBtoHSL(uint16_t R, uint16_t G, uint16_t B, uint16_t *pH, uint16_t 
 
  /* return r,g, or b value from this tridrant */
  if (hue < (HLSMAX/6))
- return ( n1 + (((n2-n1)*hue+(HLSMAX/12))/(HLSMAX/6)) );
+ return ( n1 + (((uint32_t)(n2-n1)*hue+(HLSMAX/12))/(HLSMAX/6)) );
  if (hue < (HLSMAX/2))
  return ( n2 );
  if (hue < ((HLSMAX*2)/3))
- return ( n1 + (((n2-n1)*(((HLSMAX*2)/3)-hue)+(HLSMAX/12))/(HLSMAX/6)));
+ return ( n1 + (((uint32_t)(n2-n1)*(((HLSMAX*2)/3)-hue)+(HLSMAX/12))/(HLSMAX/6)));
  else
  return ( n1 );
 }
@@ -141,15 +141,15 @@ void pix_calHSLtoRGB(uint16_t H, uint16_t S, uint16_t L, uint16_t *pR, uint16_t 
 	else { /* chromatic case */
 		/* set up magic numbers */
 		if (lum <= (HLSMAX/2))
-			Magic2 = (lum*(HLSMAX + sat) + (HLSMAX/2))/HLSMAX;
+			Magic2 = ((uint32_t)lum*(HLSMAX + sat) + (HLSMAX/2))/HLSMAX;
 		else
-			Magic2 = lum + sat - ((lum*sat) + (HLSMAX/2))/HLSMAX;
+			Magic2 = lum + sat - ((((uint32_t)lum)*sat) + (HLSMAX/2))/HLSMAX;
 		Magic1 = 2*lum-Magic2;
 
 		/* get RGB, change units from HLSMAX to RGBMAX */
-		R = (HueToRGB(Magic1,Magic2,hue+(HLSMAX/3))*RGBMAX +(HLSMAX/2))/HLSMAX;
-		G = (HueToRGB(Magic1,Magic2,hue)*RGBMAX + (HLSMAX/2)) / HLSMAX;
-		B = (HueToRGB(Magic1,Magic2,hue-(HLSMAX/3))*RGBMAX +(HLSMAX/2))/HLSMAX;
+		R = ((uint32_t)HueToRGB(Magic1,Magic2,hue+(HLSMAX/3))*RGBMAX +(HLSMAX/2))/HLSMAX;
+		G = ((uint32_t)HueToRGB(Magic1,Magic2,hue)*RGBMAX + (HLSMAX/2)) / HLSMAX;
+		B = ((uint32_t)HueToRGB(Magic1,Magic2,hue-(HLSMAX/3))*RGBMAX +(HLSMAX/2))/HLSMAX;
 	}
 
 	*pR= R;

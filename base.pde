@@ -112,23 +112,31 @@ enum {
 
 unsigned char state= STATE_NORMAL;
 
-void bck_plus(uint8_t *value)
+void bck_plus(uint16_t *value)
 {
 	(*value)++;
 	
-	if ((!mode_rgb) && ((*value) > HLSMAX))
+	if (mode_rgb)
+        {
+          if ((*value) > RGBMAX) (*value)= 0;
+        }
+        else
 	{
-		(*value)= 0;
+          if ((*value) > HLSMAX) (*value)= 0;
 	}
 }
 
-void bck_moins(uint8_t *value)
+void bck_moins(uint16_t *value)
 {
 	(*value)--;
 	
-	if ((!mode_rgb) && ((*value) > HLSMAX))
+	if (mode_rgb)
+        {
+          if ((*value) > RGBMAX) (*value)= RGBMAX;
+        }
+        else
 	{
-		(*value)= HLSMAX;
+          if ((*value) > HLSMAX) (*value)= HLSMAX;
 	}
 }
 
@@ -245,7 +253,19 @@ void loop() {
 			if (mode_rgb)
 			{
 				// convertir RGB en HSL;
-				pix_calRGBtoHSL(bck[0], bck[1], bck[2], &bck[0], &bck[1], &bck[2]);
+                Serial.print("Convert RGB2HSL: ");
+                Serial.print(bck[0], DEC);
+                Serial.print('.');
+                Serial.print(bck[1], DEC);
+                Serial.print('.');
+                Serial.print(bck[2], DEC);
+                Serial.print("->");
+		pix_calRGBtoHSL(bck[0], bck[1], bck[2], &bck[0], &bck[1], &bck[2]);
+                Serial.print(bck[0], DEC);
+                Serial.print('.');
+                Serial.print(bck[1], DEC);
+                Serial.print('.');
+                Serial.println(bck[2], DEC);
                                 Serial.println("Mode HSL");
 				mode_rgb= 0;
 			}
@@ -319,7 +339,7 @@ void loop() {
 
 void refreshBacklight(void)
 {
-	uint8_t	v1,v2,v3;
+	uint16_t	v1,v2,v3;
 
 	if (!mode_rgb)
 	{
