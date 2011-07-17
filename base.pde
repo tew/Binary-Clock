@@ -122,10 +122,12 @@ enum {
     PINK_NORMAL,	// hour+minutes
     PINK_SECONDS,	// minutes+seconds
     PINK_BLINK,
+    PINK_ENTER_TIME,
     PINK_NB
 };
 
 unsigned char state_pink= PINK_NORMAL;
+unsigned char state_pink_next= PINK_NORMAL;
 
  
  /*****************************************************************************
@@ -134,10 +136,14 @@ unsigned char state_pink= PINK_NORMAL;
 
 unsigned char pink_timer= 0;
 #define PINK_BLINK_TIME_100MS   1
+uint16_t    pink_time= 0;
 
 /****************************************************************************/
 void pink_manage(void)
 {
+    uint16_t hh,mm;
+    static uint16_t enter_time_blink;
+
     switch(state_pink)
     {
     case PINK_NORMAL:
@@ -152,10 +158,18 @@ void pink_manage(void)
         pink_timer--;
         if (!pink_timer)
         {
-            state_pink= PINK_OFF;
+            state_pink= state_pink_next;
             buffersSetValues(0, 0);
         }
         buffersSetValues(0x20, 0);
+        break;
+    case PINK_ENTER_TIME:
+        enter_time_blink++;
+        if (enter_time_blink > 10) enter_time_blink= 0;
+        hh= pink_time/100;
+        mm= pink_time % 100;
+        if (enter_time_blink > 5) hh|=0x20;
+        buffersSetValues(hh, mm);
         break;
 
     default:
@@ -164,14 +178,20 @@ void pink_manage(void)
         buffersSetValues(0, 0);
         break;
     }
+    //buffersSetValues(state_pink, 0);
+    Serial.println(state_pink, DEC);
 }
 
 /****************************************************************************/
 void pink_blink(void)
 {
-    pink_timer= PINK_BLINK_TIME_100MS;
-    state_pink= PINK_BLINK;
-    buffersSetValues(0x20, 0);
+    if (state_pink != PINK_ENTER_TIME)
+    {
+        pink_timer= PINK_BLINK_TIME_100MS;
+        state_pink_next= state_pink;
+        state_pink= PINK_BLINK;
+        buffersSetValues(0x20, 0);
+    }
 }
 
 
@@ -183,6 +203,7 @@ void pink_off(void)
         state_pink= PINK_OFF;
         buffersSetValues(0, 0);
     }
+    state_pink_next= PINK_OFF;
 }
 
 
@@ -190,6 +211,39 @@ void pink_off(void)
 void pink_normal(void)
 {
     state_pink= PINK_NORMAL;
+    state_pink_next= PINK_NORMAL;
+}
+
+
+/****************************************************************************/
+void pink_enterTime(void)
+{
+    state_pink= PINK_ENTER_TIME;
+    pink_time=0;
+    pink_manage();
+}
+
+
+/****************************************************************************/
+void time_new(uint8_t param)
+{
+    pink_time= (pink_time*10)+param;
+    if (pink_time>9999) pink_time %= 10000;
+    pink_manage();
+}
+
+
+/****************************************************************************/
+void time_valid(void)
+{
+    hourHH= pink_time/100;
+    hourMM= pink_time % 100;
+    if (hourHH>23) hourMM=23;
+    if (hourMM>59) hourMM=59;
+    hourSS= 0;
+    hourRTCsave();
+    pink_normal();
+    pink_manage();
 }
 
 
@@ -449,6 +503,24 @@ void loop() {
             mode_rgb= 0;
             pink_off();
             Serial.println("Recall");
+            break;
+
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            if (state_pink==PINK_ENTER_TIME) time_new(param);
+            break;
+
+        case IR_SET_TIME:
+            if (state_pink != PINK_ENTER_TIME) pink_enterTime();
+            else time_valid();
             break;
         }
         break;

@@ -35,36 +35,6 @@ void irLoop(void)
             switch (results.value)
             {
             /*
-            case IR_ONKYO_0:
-            case IR_AIWA_0:
-                event_addEvent(EVENT_IR, 0); break;
-            case IR_ONKYO_1:
-            case IR_AIWA_1:
-                event_addEvent(EVENT_IR, 1); break;
-            case IR_ONKYO_2:
-            case IR_AIWA_2:
-                event_addEvent(EVENT_IR, 2); break;
-            case IR_ONKYO_3:
-            case IR_AIWA_3:
-                event_addEvent(EVENT_IR, 3); break;
-            case IR_ONKYO_4:
-            case IR_AIWA_4:
-                event_addEvent(EVENT_IR, 4); break;
-            case IR_ONKYO_5:
-            case IR_AIWA_5:
-                event_addEvent(EVENT_IR, 5); break;
-            case IR_ONKYO_6:
-            case IR_AIWA_6:
-                event_addEvent(EVENT_IR, 6); break;
-            case IR_ONKYO_7:
-            case IR_AIWA_7:
-                event_addEvent(EVENT_IR, 7); break;
-            case IR_ONKYO_8:
-            case IR_AIWA_8:
-                event_addEvent(EVENT_IR, 8); break;
-            case IR_ONKYO_9:
-            case IR_AIWA_9:
-                event_addEvent(EVENT_IR, 9); break;
             case IR_ONKYO_VOL_PLUS:
                 event_addEvent(EVENT_IR, IR_PLUS); break;
             case IR_ONKYO_VOL_MOINS:
@@ -105,6 +75,42 @@ void irLoop(void)
             case IR_ONKYO_EJECT:
                 event_addEvent(EVENT_IR, IR_BCK_RECALL); break;
 
+            // keys to enter new time
+            case IR_ONKYO_0:
+            case IR_AIWA_0:
+                event_addEvent(EVENT_IR, 0); break;
+            case IR_ONKYO_1:
+            case IR_AIWA_1:
+                event_addEvent(EVENT_IR, 1); break;
+            case IR_ONKYO_2:
+            case IR_AIWA_2:
+                event_addEvent(EVENT_IR, 2); break;
+            case IR_ONKYO_3:
+            case IR_AIWA_3:
+                event_addEvent(EVENT_IR, 3); break;
+            case IR_ONKYO_4:
+            case IR_AIWA_4:
+                event_addEvent(EVENT_IR, 4); break;
+            case IR_ONKYO_5:
+            case IR_AIWA_5:
+                event_addEvent(EVENT_IR, 5); break;
+            case IR_ONKYO_6:
+            case IR_AIWA_6:
+                event_addEvent(EVENT_IR, 6); break;
+            case IR_ONKYO_7:
+            case IR_AIWA_7:
+                event_addEvent(EVENT_IR, 7); break;
+            case IR_ONKYO_8:
+            case IR_AIWA_8:
+                event_addEvent(EVENT_IR, 8); break;
+            case IR_ONKYO_9:
+            case IR_AIWA_9:
+                event_addEvent(EVENT_IR, 9); break;
+
+            case IR_ONKYO_ENTER:
+            case IR_AIWA_PRGM:
+                event_addEvent(EVENT_IR, IR_SET_TIME); break;
+                
             default:
                 found= 0;
                 break;

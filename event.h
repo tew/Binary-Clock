@@ -47,7 +47,8 @@ enum {
     IR_LUM_PLUS,
     IR_LUM_MOINS,
     IR_BCK_REC,
-    IR_BCK_RECALL
+    IR_BCK_RECALL,
+    IR_SET_TIME
 };
 
 #endif
