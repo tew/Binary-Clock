@@ -66,7 +66,7 @@ void periodic(void)
         if (cpt_ms == 100)
         {
             cpt_ms= 0;
-            event_addEvent(EVENT_BCK, 0);
+            event_addEvent(EVENT_100MS, 0);
             //event_addEvent(EVENT_LUMINO_MESURE, 0);
         }
 
@@ -98,27 +98,45 @@ void setup() {
     setupDebug();
 }
 
+/*****************************************************************************
+ * BACK LEDs declarations
+ ****************************************************************************/
+enum {
+    BCK_OFF,
+    BCK_STATIC,
+    BCK_HUE_SHIFT_SLOW,
+    BCK_HUE_SHIFT,
+    BCK_HUE_SHIFT_FAST,
+    BCK_MANUAL,
+    BCK_NB
+};
+
+uint8_t state_bck= BCK_OFF;
 
 /*****************************************************************************
- * PINK LEDs related functions
+ * PINK LEDs declarations
  ****************************************************************************/
-
- /* state of pink LEDs. Those LEDs normally display the time (hours and minutes) */
+/* state of pink LEDs. Those LEDs normally display the time (hours and minutes) */
 enum {
+    PINK_OFF,
     PINK_NORMAL,	// hour+minutes
     PINK_SECONDS,	// minutes+seconds
     PINK_BLINK,
-    PINK_OFF,
     PINK_NB
 };
 
-//uint8_t pink_pwm= 5;
-
 unsigned char state_pink= PINK_NORMAL;
 
+ 
+ /*****************************************************************************
+ * PINK LEDs related functions
+ ****************************************************************************/
+
+unsigned char pink_timer= 0;
+#define PINK_BLINK_TIME_100MS   1
 
 /****************************************************************************/
-void manage_pink(void)
+void pink_manage(void)
 {
     switch(state_pink)
     {
@@ -130,10 +148,48 @@ void manage_pink(void)
         hourDisplaySeconds();
         break;
         
-        /*case PINK_BLINK:
-    buffersBlink();
-    break;*/
+    case PINK_BLINK:
+        pink_timer--;
+        if (!pink_timer)
+        {
+            state_pink= PINK_OFF;
+            buffersSetValues(0, 0);
+        }
+        buffersSetValues(0x20, 0);
+        break;
+
+    default:
+        state_pink= PINK_OFF;
+    case PINK_OFF:
+        buffersSetValues(0, 0);
+        break;
     }
+}
+
+/****************************************************************************/
+void pink_blink(void)
+{
+    pink_timer= PINK_BLINK_TIME_100MS;
+    state_pink= PINK_BLINK;
+    buffersSetValues(0x20, 0);
+}
+
+
+/****************************************************************************/
+void pink_off(void)
+{
+    if (state_pink != PINK_BLINK)
+    {
+        state_pink= PINK_OFF;
+        buffersSetValues(0, 0);
+    }
+}
+
+
+/****************************************************************************/
+void pink_normal(void)
+{
+    state_pink= PINK_NORMAL;
 }
 
 
@@ -153,16 +209,6 @@ uint8_t	bck_tempo=0;	// divisor for soem states
 uint16_t bck_timer=0;	// to switch off back LEDs after delay
 #define	BCK_TIMEOUT_S	3600
 
-enum {
-    BCK_OFF,
-    BCK_STATIC,
-    BCK_HUE_SHIFT_SLOW,
-    BCK_HUE_SHIFT,
-    BCK_HUE_SHIFT_FAST,
-    BCK_MANUAL,
-    BCK_NB
-};
-uint8_t state_bck= BCK_MANUAL;
 
 void bck_plus(uint16_t *value)
 {
@@ -193,7 +239,15 @@ void bck_moins(uint16_t *value)
 }
 
 /****************************************************************************/
-void manage_bck(void)
+void bck_off(void)
+{
+    state_bck= BCK_OFF;
+    pink_normal();
+}
+
+
+/****************************************************************************/
+void bck_manage(void)
 {
     static uint8_t divisor= 0;
     
@@ -226,13 +280,46 @@ void manage_bck(void)
         break;
 
     default:
-        state_bck= BCK_OFF;
-        state_pink= PINK_NORMAL;
+        bck_off();
         // and apply OFF... (do not put any break here!)
     case BCK_OFF:
         backSetRVB(0,0,0);
         break;
     }
+}
+
+
+/****************************************************************************/
+void bck_shift(uint8_t param)
+{
+    if ((state_bck != BCK_HUE_SHIFT_SLOW)
+        && (state_bck != BCK_HUE_SHIFT)
+        && (state_bck != BCK_HUE_SHIFT_FAST))
+    {
+        mode_rgb= 0;
+        pink_off();
+        // setting max saturation and luminosity if not defined
+        if ((bck[1]==0) || (bck[2]==0))
+        {
+            bck[1]=HLSMAX;
+            bck[2]=HLSMAX/2;
+        }
+    }
+    
+    switch(param)
+    {
+    case IR_HUE_SHIFT_SLOW:
+        state_bck= BCK_HUE_SHIFT_SLOW;
+        break;
+    case IR_HUE_SHIFT_FAST:
+        state_bck= BCK_HUE_SHIFT_FAST; 
+        break;
+    default:
+    case IR_HUE_SHIFT:
+        state_bck= BCK_HUE_SHIFT;
+        break;
+    }
+    bck_timer= BCK_TIMEOUT_S;
 }
 
 
@@ -276,6 +363,7 @@ void loop() {
         //hourHH= param;
         switch(param)
         {
+        /*
         case 0: bck[0]= bck[1]= bck[2]=   0; backSetRVB(bck[0], bck[1], bck[2]); break;
         case 1: bck[0]= bck[1]= bck[2]=   1; backSetRVB(bck[0], bck[1], bck[2]); break;
         case 2: bck[0]= bck[1]= bck[2]=  10; backSetRVB(bck[0], bck[1], bck[2]); break;
@@ -327,32 +415,13 @@ void loop() {
             
             //case IR_LUM_PLUS: pink_pwm++; Serial.println(pink_pwm, DEC); break;
             //case IR_LUM_MOINS:	pink_pwm--; Serial.println(pink_pwm, DEC); break;
-            
-            // playing cases
+        */
+        
+        // playing cases
         case IR_HUE_SHIFT:
-            switch (state_bck)
-            {
-            case BCK_HUE_SHIFT_SLOW: state_bck= BCK_HUE_SHIFT; bck_timer= BCK_TIMEOUT_S; break;
-            case BCK_HUE_SHIFT:		 state_bck= BCK_HUE_SHIFT_FAST; bck_timer= BCK_TIMEOUT_S; break;
-                
-            case BCK_STATIC:
-            case BCK_HUE_SHIFT_FAST:
-                state_bck= BCK_HUE_SHIFT_SLOW;
-                bck_timer= BCK_TIMEOUT_S; 
-                break;
-
-            default: 
-                state_bck= BCK_HUE_SHIFT_SLOW;
-                bck_timer= BCK_TIMEOUT_S; 
-                mode_rgb= 0;
-                // setting max saturation and luminosity if not defined
-                if ((bck[1]==0) || (bck[2]==0))
-                {
-                    bck[1]=HLSMAX;
-                    bck[2]=HLSMAX/2;
-                }
-                break;
-            }
+        case IR_HUE_SHIFT_SLOW:
+        case IR_HUE_SHIFT_FAST:
+            bck_shift(param);
             break;
             
         case IR_STOP:
@@ -364,7 +433,7 @@ void loop() {
                 state_bck= BCK_STATIC;
                 break;
             case BCK_STATIC:
-                state_bck= BCK_OFF;
+                bck_off();
                 break;
             }
             break;
@@ -378,13 +447,15 @@ void loop() {
             memcpy(bck, bck_saved, sizeof(bck_saved));
             state_bck= BCK_STATIC;
             mode_rgb= 0;
+            pink_off();
             Serial.println("Recall");
             break;
         }
         break;
 
-    case EVENT_BCK:
-        manage_bck();
+    case EVENT_100MS:
+        bck_manage();
+        pink_manage();
         break;
 
     case EVENT_HOUR:
@@ -394,7 +465,7 @@ void loop() {
             bck_timer--;
             if (!bck_timer)
             {
-                state_bck= BCK_OFF;
+                bck_off();
             }
         }
         break;
@@ -404,10 +475,8 @@ void loop() {
         break;
     }
 
-    if  (getKey() == 4) state_pink= PINK_SECONDS;
-    else state_pink= PINK_NORMAL;
-
-    manage_pink();
+    /*if  (getKey() == 4) state_pink= PINK_SECONDS;
+    else state_pink= PINK_NORMAL;*/
 }
 
 void refreshBacklight(void)

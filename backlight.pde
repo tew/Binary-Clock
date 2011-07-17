@@ -12,8 +12,4 @@ void backSetRVB(uint8_t rouge, uint8_t vert, uint8_t bleu)
     analogWrite(backPin[0], rouge);
     analogWrite(backPin[1], vert);
     analogWrite(backPin[2], bleu);
-
-    // allumer ou éteindre LEDs rose en fonction de l'état back LEDs
-    if (rouge || vert ||bleu) luminoSetState(0);
-    else luminoSetState(1);
 }

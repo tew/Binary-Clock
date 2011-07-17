@@ -26,14 +26,15 @@ void irLoop(void)
         irrecv.resume(); // Receive the next value
         if ((decoded!=1) || (results.value != 0))
         {
-            Serial.print(decoded, DEC);
+            /*Serial.print(decoded, DEC);
             Serial.print(": ");
             Serial.print(results.value, HEX);
-            Serial.println("");
+            Serial.println("");*/
             
             found= 1;
             switch (results.value)
             {
+            /*
             case IR_ONKYO_0:
             case IR_AIWA_0:
                 event_addEvent(EVENT_IR, 0); break;
@@ -82,12 +83,18 @@ void irLoop(void)
                 
             case IR_AIWA_VOL_PLUS: event_addEvent(EVENT_IR, IR_LUM_PLUS); break;
             case IR_AIWA_VOL_MOINS: event_addEvent(EVENT_IR, IR_LUM_MOINS); break;
-
+            */
                 // next are playing codes
             case IR_ONKYO_PLAY:
             case IR_AIWA_CD_PLAY_PAUSE:
                 event_addEvent(EVENT_IR, IR_HUE_SHIFT); break;
                 
+            case IR_ONKYO_PREV:
+                event_addEvent(EVENT_IR, IR_HUE_SHIFT_SLOW); break;
+
+            case IR_ONKYO_NEXT:
+                event_addEvent(EVENT_IR, IR_HUE_SHIFT_FAST); break;
+
             case IR_ONKYO_STOP:
             case IR_AIWA_CD_STOP:
                 event_addEvent(EVENT_IR, IR_STOP); break;
@@ -105,6 +112,7 @@ void irLoop(void)
             if (found)
             {
                 // on pourrait faire clignoter une LED rose
+                pink_blink();
             }
         }
     }

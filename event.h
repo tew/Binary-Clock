@@ -19,7 +19,7 @@ enum {
     EVENT_HOUR,
 
     // backlight
-    EVENT_BCK,
+    EVENT_100MS,
     
     // luminosite
     EVENT_LUMINOSITE,
@@ -40,7 +40,9 @@ enum {
     IR_MODIFY_RGB,
     IR_MODIFY_HSL,
     IR_POWER,
+    IR_HUE_SHIFT_SLOW,
     IR_HUE_SHIFT,
+    IR_HUE_SHIFT_FAST,
     IR_STOP,
     IR_LUM_PLUS,
     IR_LUM_MOINS,

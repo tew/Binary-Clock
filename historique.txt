@@ -37,6 +37,8 @@
 - calibrage luminosité LEDs roses
 - extinction LEDs roses si allumage back LEDs
 - fonction enregistrement et rappel d'une couleur
+- changement des fonctions telecommande: selection directe shift lent/rapide/normal
+- retour telecommande sur dernière premiere LED rose du haut
 
 17/07/2011
 - ajout timer pour éteindre back LEDs après 1 heure
