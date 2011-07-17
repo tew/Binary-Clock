@@ -42,21 +42,21 @@ uint8_t state_lumino= 1;
 
 void luminoPeriodic()
 {
-  //static uint16_t toto= 0;
+//  static uint16_t toto= 0;
   static int current=0;
   int sensorValue = analogRead(luminoPin);
 //  int outputValue = map(sensorValue, 0, 800, 40, 255);
+  if (sensorValue > 180) sensorValue= 180;
   int outputValue = map(sensorValue, 0, 180, 2, 240);
   /*toto++;
   if (toto==1000)
   {
     Serial.print("sensor = " );                       
   Serial.println(sensorValue);
+  Serial.print("\t output = ");      
+  Serial.println(outputValue);
   toto=0;
   }*/
-  /*
-  Serial.print("\t output = ");      
-  Serial.println(outputValue);   */
   if (outputValue>current) current++;
   if (outputValue<current) current--;
   if (state_lumino) analogWrite(bufferOutputEnable, 255-current);

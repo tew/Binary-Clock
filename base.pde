@@ -37,6 +37,8 @@ uint16_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
 uint16_t        bck_saved[3];
 uint8_t mode_rgb= 1;
 uint8_t	bck_tempo=0;	// divisor for soem states
+uint16_t bck_timer=0;	// to switch off back LEDs after delay
+#define	BCK_TIMEOUT_S	3600
 
 enum {
 	BCK_OFF,
@@ -101,7 +103,7 @@ void periodicSetup()
 
 /***********************************************************************/
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   backSetup();
   event_init();
   buffersSetup();
@@ -344,16 +346,18 @@ void loop() {
 		case IR_HUE_SHIFT:
 			switch (state_bck)
 			{
-				case BCK_HUE_SHIFT_SLOW: state_bck= BCK_HUE_SHIFT; break;
-				case BCK_HUE_SHIFT:		 state_bck= BCK_HUE_SHIFT_FAST; break;
+				case BCK_HUE_SHIFT_SLOW: state_bck= BCK_HUE_SHIFT; bck_timer= BCK_TIMEOUT_S; break;
+				case BCK_HUE_SHIFT:		 state_bck= BCK_HUE_SHIFT_FAST; bck_timer= BCK_TIMEOUT_S; break;
 				
                                 case BCK_STATIC:
                                 case BCK_HUE_SHIFT_FAST:
                                   state_bck= BCK_HUE_SHIFT_SLOW;
+								  bck_timer= BCK_TIMEOUT_S; 
                                   break;
 
 				default: 
                                   state_bck= BCK_HUE_SHIFT_SLOW;
+								  bck_timer= BCK_TIMEOUT_S; 
                                   mode_rgb= 0;
                                   // setting max saturation and luminosity if not defined
                                   if ((bck[1]==0) || (bck[2]==0))
@@ -410,6 +414,14 @@ void loop() {
   */
 	case EVENT_HOUR:
 	  hourPeriodic();
+	  if (bck_timer)
+	  {
+		bck_timer--;
+		if (!bck_timer)
+		{
+			state_bck= BCK_OFF;
+		}
+	  }
 	  break;
     // no event
     
