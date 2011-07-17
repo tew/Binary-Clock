@@ -75,6 +75,10 @@ void irLoop(void)
             case IR_ONKYO_EJECT:
                 event_addEvent(EVENT_IR, IR_BCK_RECALL); break;
 
+            case IR_ONKYO_MUTING:
+            case IR_AIWA_CD_NEXT:
+                event_addEvent(EVENT_IR, IR_CHENILLARD); break;
+
             // keys to enter new time
             case IR_ONKYO_0:
             case IR_AIWA_0:

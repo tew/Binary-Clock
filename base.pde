@@ -123,6 +123,7 @@ enum {
     PINK_SECONDS,	// minutes+seconds
     PINK_BLINK,
     PINK_ENTER_TIME,
+    PINK_CHENILLARD,
     PINK_NB
 };
 
@@ -137,6 +138,57 @@ unsigned char state_pink_next= PINK_NORMAL;
 unsigned char pink_timer= 0;
 #define PINK_BLINK_TIME_100MS   1
 uint16_t    pink_time= 0;
+uint16_t    pink_chen_st, pink_chen_tim, pink_chen_pos;
+#define PINK_CHENILLARD_TIME_100MS 70  // 7s
+#define PINK_CHENILLARD_NB  4
+#define PINK_CHENILLARD_PRECOMP 2
+
+const uint8_t pink_chenillard_pattern[PINK_CHENILLARD_PRECOMP][2][12]= {
+    {   {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20},
+        {0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01}},
+    {   {0x01, 0x00, 0x02, 0x06, 0x04, 0x00, 0x08, 0x18, 0x10, 0x00, 0x20, 0x20},
+        {0x01, 0x03, 0x02, 0x00, 0x04, 0x0C, 0x08, 0x00, 0x10, 0x30, 0x20, 0x00}}
+};
+
+/****************************************************************************/
+void pink_manageChenillard(void)
+{
+    pink_chen_tim++;
+    uint8_t l1, l2;
+    
+    if (pink_chen_tim > PINK_CHENILLARD_TIME_100MS)
+    {
+        pink_chen_st++;
+        if (pink_chen_st >= PINK_CHENILLARD_NB) pink_chen_st=0;
+        pink_chen_tim-= PINK_CHENILLARD_TIME_100MS;
+    }
+
+    switch (pink_chen_st)
+    {
+    case 0:
+        // chenillard simple
+        pink_chen_pos= (pink_chen_pos+1)%12;
+        if (pink_chen_pos < 6) { l1= (1<<pink_chen_pos); l2=0; }
+        else { l1=0; l2=(1<<(11-pink_chen_pos)); }
+        buffersSetValues(l1, l2);
+        break;
+    case 1:
+        // chenillard simple sens inverse
+        pink_chen_pos= (pink_chen_pos-1+12)%12;
+        if (pink_chen_pos < 6) { l1= (1<<pink_chen_pos); l2=0; }
+        else { l1=0; l2=(1<<(11-pink_chen_pos)); }
+        buffersSetValues(l1, l2);
+        break;
+    case 2:
+    case 3:
+        pink_chen_pos= (pink_chen_pos+1)%12;
+        l1= pink_chenillard_pattern[pink_chen_st-2][0][pink_chen_pos];
+        l2= pink_chenillard_pattern[pink_chen_st-2][1][pink_chen_pos];
+        buffersSetValues(l1, l2);
+        break;
+    }
+}
+
 
 /****************************************************************************/
 void pink_manage(void)
@@ -172,6 +224,10 @@ void pink_manage(void)
         buffersSetValues(hh, mm);
         break;
 
+    case PINK_CHENILLARD:
+        pink_manageChenillard();
+        break;
+
     default:
         state_pink= PINK_OFF;
     case PINK_OFF:
@@ -179,7 +235,7 @@ void pink_manage(void)
         break;
     }
     //buffersSetValues(state_pink, 0);
-    Serial.println(state_pink, DEC);
+    //Serial.println(state_pink, DEC);
 }
 
 /****************************************************************************/
@@ -212,6 +268,19 @@ void pink_normal(void)
 {
     state_pink= PINK_NORMAL;
     state_pink_next= PINK_NORMAL;
+}
+
+
+/****************************************************************************/
+void pink_chenillard(void)
+{
+    state_pink= PINK_CHENILLARD;
+    state_pink_next= PINK_CHENILLARD;
+    pink_chen_st++;
+    if (pink_chen_st >= PINK_CHENILLARD_NB) pink_chen_st=0;
+    pink_chen_tim= 0;
+    pink_chen_pos= 0;
+    pink_manageChenillard();
 }
 
 
@@ -388,7 +457,7 @@ void loop() {
     switch (event)
     {
     case EVENT_KEY:
-        if (param == 3)
+/*        if (param == 3)
         {
             hourHH ++;
             if (hourHH>23) hourHH=0;
@@ -411,8 +480,24 @@ void loop() {
         {
             hourSetup();
         }
-        break;
+        break;*/
+        switch(param)
+        {
+        case 4: // annuler les animations en cours
+            pink_normal();
+            bck_off();
+            break;
+            
+        case 2: // super chenillard
+            bck_off();
+            pink_chenillard();
+            break;
         
+        case 1: // hue shifting
+            bck_shift(IR_HUE_SHIFT);
+            break;
+        }
+            
     case EVENT_IR:
         //hourHH= param;
         switch(param)
@@ -489,6 +574,9 @@ void loop() {
             case BCK_STATIC:
                 bck_off();
                 break;
+            default:
+                pink_normal();
+                break;
             }
             break;
             
@@ -503,6 +591,10 @@ void loop() {
             mode_rgb= 0;
             pink_off();
             Serial.println("Recall");
+            break;
+        case IR_CHENILLARD:
+            bck_off();
+            pink_chenillard();
             break;
 
         case 0:

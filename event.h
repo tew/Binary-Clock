@@ -48,6 +48,7 @@ enum {
     IR_LUM_MOINS,
     IR_BCK_REC,
     IR_BCK_RECALL,
+    IR_CHENILLARD,
     IR_SET_TIME
 };
 

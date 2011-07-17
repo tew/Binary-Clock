@@ -39,6 +39,7 @@
 - fonction enregistrement et rappel d'une couleur
 - changement des fonctions telecommande: selection directe shift lent/rapide/normal
 - retour telecommande sur dernière premiere LED rose du haut
+- ajout d'un super chenillard
 
 17/07/2011
 - ajout timer pour éteindre back LEDs après 1 heure
