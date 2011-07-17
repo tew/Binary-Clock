@@ -1,13 +1,13 @@
 /*
- * IRremote
- * Version 0.1 July, 2009
- * Copyright 2009 Ken Shirriff
- * For details, see http://arcfn.com/2009/08/multi-protocol-infrared-remote-library.html
- *
- * Interrupt code based on NECIRrcv by Joe Knapp
- * http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1210243556
- * Also influenced by http://zovirl.com/2008/11/12/building-a-universal-remote-with-an-arduino/
- */
+* IRremote
+* Version 0.1 July, 2009
+* Copyright 2009 Ken Shirriff
+* For details, see http://arcfn.com/2009/08/multi-protocol-infrared-remote-library.html
+*
+* Interrupt code based on NECIRrcv by Joe Knapp
+* http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1210243556
+* Also influenced by http://zovirl.com/2008/11/12/building-a-universal-remote-with-an-arduino/
+*/
 
 #ifndef IRremoteint_h
 #define IRremoteint_h
@@ -91,12 +91,12 @@
 
 // information for the interrupt handler
 typedef struct {
-  uint8_t recvpin;           // pin for IR data from detector
-  uint8_t rcvstate;          // state machine
-  uint8_t blinkflag;         // TRUE to enable blinking of pin 13 on IR processing
-  unsigned int timer;     // state timer, counts 50uS ticks.
-  unsigned int rawbuf[RAWBUF]; // raw data
-  uint8_t rawlen;         // counter of entries in rawbuf
+    uint8_t recvpin;           // pin for IR data from detector
+    uint8_t rcvstate;          // state machine
+    uint8_t blinkflag;         // TRUE to enable blinking of pin 13 on IR processing
+    unsigned int timer;     // state timer, counts 50uS ticks.
+    unsigned int rawbuf[RAWBUF]; // raw data
+    uint8_t rawlen;         // counter of entries in rawbuf
 } 
 irparams_t;
 

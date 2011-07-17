@@ -1,0 +1,10 @@
+*.xMAP
+*~
+*.swp
+*.bak
+*.o
+*.depend
+*.lst
+*.tdt
+*.layout
+*.exe
