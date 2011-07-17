@@ -662,7 +662,7 @@ long IRrecv::decodeGeneric(decode_results *results) {
         
         if (i<results->rawlen)
         {
-            // puis on re�ois un high
+            // puis on re?ois un high
             w= bThigh0-results->rawbuf[i];
             bThigh0=results->rawbuf[i];
             if (w<0) w=-w;
@@ -695,10 +695,10 @@ long IRrecv::decodeGeneric(decode_results *results) {
 /*
 ;*** Time out value = 16 mS, --> Prescaler = 64
 ;    1 timer tick = 64 uS
-; on est au d�but de l'impulsion
-; on boucle tant qu'on est dedans (d�tecteur � 0), tout
-; en v�rifiant qu'on n'a pas de timeout sur le TMR0 (16 ms)
-; si timeout �ventuellement on envoie le code
+; on est au d?but de l'impulsion
+; on boucle tant qu'on est dedans (d?tecteur ? 0), tout
+; en v?rifiant qu'on n'a pas de timeout sur le TMR0 (16 ms)
+; si timeout ?ventuellement on envoie le code
 
 MeasTlow
 	btfsc   PORTB,ibMODULE_IR       ;Skip if line low.
@@ -707,15 +707,15 @@ MeasTlow
 	goto    MeasTlow        ;>> Loop until line high
 	goto    HaveData        ;>> Have data, now evaluate
 
-; on r�cup�re la dur�e de l'impulsion depuis TMR0 que l'on compare � la dur�e
-; de l'impulsion pr�c�dente, on insere cela dans le code par un shift de bits
+; on r?cup?re la dur?e de l'impulsion depuis TMR0 que l'on compare ? la dur?e
+; de l'impulsion pr?c?dente, on insere cela dans le code par un shift de bits
 HaveTlow
 	movf    TMR0,W          ;Get time
 	subwf   bTlow0,W        ;W=Tlow0-(W=Tlow1)
 	subwf   bTlow0,F        ;bTlow0= Tlow0-W= Tlow0-Tlow0+Tlow1= Tlow1
 	call    ShiftInBit      ;Check difference, determine bit
 
-; d�but du blanc, mesurer sa dur�e, sortir si timeout
+; d?but du blanc, mesurer sa dur?e, sortir si timeout
 MeasThigh
 	btfss   PORTB,ibMODULE_IR       ;Skip if line high.
 	goto    HaveThigh       ;>> Handle this bit
@@ -723,8 +723,8 @@ MeasThigh
 	goto    MeasThigh       ;>> Loop until line high
 
 
-; Ici on a re�u des donn�es IR, et le timeout de 16 ms a �t� d�pass�,
-; on a donc re�u un code complet. On va voir ce qu'on peut en faire...
+; Ici on a re?u des donn?es IR, et le timeout de 16 ms a ?t? d?pass?,
+; on a donc re?u un code complet. On va voir ce qu'on peut en faire...
 HaveData
 	btfsc   fREP_AUTORISEE  ; tester si on peut recevoir un message contenant peu de pulses
 	goto    validData       ; pas de limitation sur le nombre d'impulsions
@@ -734,7 +734,7 @@ HaveData
 	btfss   STATUS,C        ;Skip if more than 16 edges
 	goto    invalidData
 
-	; on a suffisamment d'impulsions ou les codes r�p�titions sont autoris�s
+	; on a suffisamment d'impulsions ou les codes r?p?titions sont autoris?s
 validData
 	bsf     fHAVE_IR_DATA
 
@@ -757,7 +757,7 @@ ShiftInBit
 	movwf   bTemp1          ;Store diff
 	btfsc   bTemp1,7        ;Skip if positive
 	sublw   0               ;Make it positive  (W= 0-W)
-	addlw   (0xff-DIFLIM)   ;Add limit for CY (C=1 si W<DIFLIM, cad changement de dur�e)
+	addlw   (0xff-DIFLIM)   ;Add limit for CY (C=1 si W<DIFLIM, cad changement de dur?e)
 	rlf     bRemDat,F       ;Rotate in CY
 	rlf     bRemDat+1,F     ;Rotate in CY
 	rlf     bRemDat+2,F     ;Rotate in CY

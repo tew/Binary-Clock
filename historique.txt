@@ -41,6 +41,7 @@
 17/07/2011
 - ajout timer pour éteindre back LEDs après 1 heure
 - sensor luminosit borné au max
+- encoder le source en UTF-8
 
 Extinctin après un certain temps dans le noir si alimentation par piles pour éviter de trop décharger (ref de tension nécessaire)
 Mettre photo en négatif derrière vitre, à rétroéclairer
