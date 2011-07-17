@@ -12,14 +12,19 @@ We need to modify them to make them compatible. So their are included in the cod
 
 */
 
+#include "MsTimer2.h"
+#include "event.h"
+#include "hour.h"
+
+
+/*****************************************************************************
+ * SETUP related functions
+ ****************************************************************************/
+
 #define PERIODIC_BASE_US  50
 #define BUFFERS_REFRESH_PERIOD_MS  100UL
 #define HOUR_REFRESH_PERIOD_MS  1000UL
 #define KEY_PERIODIC_MS  50UL
-
-#include "MsTimer2.h"
-#include "event.h"
-#include "hour.h"
 
 
 unsigned long cpt_us= 0;
@@ -27,29 +32,6 @@ unsigned long cpt_ms= 0;
 unsigned long cpt_buffers=0;
 unsigned long cpt_hour=0;
 unsigned long cpt_key=0;
-
-// backlight related variables
-const uint16_t HLSMAX = 1530;
-const uint16_t RGBMAX = 255;
-
-// management of back LEDs
-uint16_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
-uint16_t        bck_saved[3];
-uint8_t mode_rgb= 1;
-uint8_t	bck_tempo=0;	// divisor for soem states
-uint16_t bck_timer=0;	// to switch off back LEDs after delay
-#define	BCK_TIMEOUT_S	3600
-
-enum {
-    BCK_OFF,
-    BCK_STATIC,
-    BCK_HUE_SHIFT_SLOW,
-    BCK_HUE_SHIFT,
-    BCK_HUE_SHIFT_FAST,
-    BCK_MANUAL,
-    BCK_NB
-};
-uint8_t state_bck= BCK_MANUAL;
 
 /***********************************************************************/
 void periodic(void)
@@ -93,7 +75,7 @@ void periodic(void)
 }
 
 
-/***********************************************************************/
+ /***********************************************************************/
 void periodicSetup()
 {
     MsTimer2::set(periodic);  // it period is 50µs, we need a call each it
@@ -101,7 +83,9 @@ void periodicSetup()
 }
 
 
-/***********************************************************************/
+/*****************************************************************************
+ * SETUP
+ ****************************************************************************/
 void setup() {
     //Serial.begin(9600);
     backSetup();
@@ -115,10 +99,15 @@ void setup() {
 }
 
 
-/* state of pink LEDs. Those LEDs normally display the time (hours and minutes) */
+/*****************************************************************************
+ * PINK LEDs related functions
+ ****************************************************************************/
+
+ /* state of pink LEDs. Those LEDs normally display the time (hours and minutes) */
 enum {
     PINK_NORMAL,	// hour+minutes
     PINK_SECONDS,	// minutes+seconds
+    PINK_BLINK,
     PINK_OFF,
     PINK_NB
 };
@@ -126,6 +115,54 @@ enum {
 //uint8_t pink_pwm= 5;
 
 unsigned char state_pink= PINK_NORMAL;
+
+
+/****************************************************************************/
+void manage_pink(void)
+{
+    switch(state_pink)
+    {
+    case PINK_NORMAL:
+        hourDisplay();
+        break;
+        
+    case PINK_SECONDS:
+        hourDisplaySeconds();
+        break;
+        
+        /*case PINK_BLINK:
+    buffersBlink();
+    break;*/
+    }
+}
+
+
+/*****************************************************************************
+ * BACK LEDs related functions
+ ****************************************************************************/
+
+// backlight related variables and consts
+const uint16_t HLSMAX = 1530;
+const uint16_t RGBMAX = 255;
+
+// management of back LEDs
+uint16_t	bck[3];	// this hold RGB (mode_rgb=1) or HSL (mode_rgb=0) values
+uint16_t        bck_saved[3];
+uint8_t mode_rgb= 1;
+uint8_t	bck_tempo=0;	// divisor for soem states
+uint16_t bck_timer=0;	// to switch off back LEDs after delay
+#define	BCK_TIMEOUT_S	3600
+
+enum {
+    BCK_OFF,
+    BCK_STATIC,
+    BCK_HUE_SHIFT_SLOW,
+    BCK_HUE_SHIFT,
+    BCK_HUE_SHIFT_FAST,
+    BCK_MANUAL,
+    BCK_NB
+};
+uint8_t state_bck= BCK_MANUAL;
 
 void bck_plus(uint16_t *value)
 {
@@ -155,6 +192,7 @@ void bck_moins(uint16_t *value)
     }
 }
 
+/****************************************************************************/
 void manage_bck(void)
 {
     static uint8_t divisor= 0;
@@ -187,73 +225,21 @@ void manage_bck(void)
     case BCK_MANUAL:
         break;
 
-    case BCK_OFF:
     default:
         state_bck= BCK_OFF;
+        state_pink= PINK_NORMAL;
+        // and apply OFF... (do not put any break here!)
+    case BCK_OFF:
         backSetRVB(0,0,0);
         break;
-        /*if (!mode_rgb)
-        {
-        bck_plus(&bck[0]); refreshBacklight();
-        }*/
     }
 }
 
-//#define  KEY_PRERIOD_MS  500
-//unsigned char keyState= 0;
-//int key;
+
+/*****************************************************************************
+ * MAIN LOOP
+ ****************************************************************************/
 void loop() {
-    /*#ifdef BUFFERS_WITH_DIMMING
-static int i,j;
-const unsigned char levels[]={0,1,2,4,2,1};
-
-//  buffersSetValues(hh,mm);
-delay(150);
-
-i++;
-i%=6;
-//i%=7;
-for(j=0; j<6; j++)
-{
-    buffersLuminosity[0][j]=levels[i]; //(i)%BUFFERS_NB_LEVELS;
-}
-/*  buffersValue(0, hh);
-buffersValue(1, hh);
-delay(100);
-if (hh) hh=0;
-else hh=0xff;r/
-#endif*/
-    unsigned long mil= millis();
-
-    //if ((mil % KEY_PRERIOD_MS) == 0)
-    {
-        //keyState++;
-        //Serial.println(keyState, DEC);
-        //key= keyLoop();
-        
-        /*if (key && (keyState==0))
-    {
-    // on a un appui touche
-    gererKey(key);
-    //key+=32;
-    }*/
-        //keyState= key;
-        //    hourSS= keyState;
-    }
-    /*  int ss,mm,hh;
-mil /= 1000;
-ss= mil % 60;
-mil /= 60;
-mm= mil % 60;
-mil /= 60;
-hh= mil % 24;
-*/
-    //DateTime now = RTC.now();
-    //hourMM= now.minute();
-    //hourSS= now.second();
-    /*  hourMM=0;
-hourSS= keyLoop();*/
-    //  keyState= hourSS+1;
     irLoop();
     unsigned char event, param;
 
@@ -400,18 +386,7 @@ hourSS= keyLoop();*/
     case EVENT_BCK:
         manage_bck();
         break;
-        /*    case EVENT_IR_PLUS:
-    hourHH++;
-    bck++;
-    backSetRVB(bck, bck, bck);
-    break;
-    
-    case EVENT_IR_MOINS:
-    hourHH--;
-    bck--;
-    backSetRVB(bck, bck, bck);
-    break;
-*/
+
     case EVENT_HOUR:
         hourPeriodic();
         if (bck_timer)
@@ -423,34 +398,16 @@ hourSS= keyLoop();*/
             }
         }
         break;
-        // no event
-        
-        //    case EVENT_LUMINO_MESURE:
-        //      break;
         
     default:
         luminoPeriodic();
-        
-        // analogWrite(9, 255-pink_pwm);
         break;
     }
+
     if  (getKey() == 4) state_pink= PINK_SECONDS;
     else state_pink= PINK_NORMAL;
 
-    switch(state_pink)
-    {
-    case PINK_NORMAL:
-        hourDisplay();
-        break;
-        
-    case PINK_SECONDS:
-        hourDisplaySeconds();
-        break;
-        
-        /*case PINK_BLINK:
-    buffersBlink();
-    break;*/
-    }
+    manage_pink();
 }
 
 void refreshBacklight(void)
